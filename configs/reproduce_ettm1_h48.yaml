@@ -1,0 +1,14 @@
+extends: hn_mvts_code.yaml
+name: ETTm1 H48 author-log reproduction
+horizons:
+- 48
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600

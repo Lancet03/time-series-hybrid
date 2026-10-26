@@ -1,0 +1,77 @@
+name: ETTm1 end-to-end smoke
+purpose: pilot
+protocol: common
+context: 336
+horizons:
+- 48
+device: auto
+threads: 4
+output: ../outputs
+cache: ../.cache/huggingface
+model_lock: model-lock.json
+references: ../references/hn_mvts_author.csv
+evaluation:
+  batch_size: 4
+  val_limit: 2
+  test_limit: 2
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600
+  channels:
+  - 0
+  - 1
+models:
+- id: last_value
+  type: last_value
+- id: seasonal_naive
+  type: seasonal_naive
+- id: ar
+  type: ar
+  params:
+    fit_prefix: 128
+  candidates:
+  - order: 16
+  - order: 32
+- id: arima
+  type: arima
+  params:
+    fit_prefix: 128
+    maxiter: 100
+  candidates:
+  - order:
+    - 2
+    - 1
+    - 0
+  - order:
+    - 2
+    - 0
+    - 0
+- id: dlinear
+  type: dlinear
+  seeds:
+  - 0
+  params:
+    epochs: 2
+    batch_size: 64
+    lr: 0.0001
+    revin: true
+    train_limit: 128
+- id: chronos
+  type: chronos
+  params:
+    checkpoint: amazon/chronos-bolt-tiny
+    revision: main
+    batch_size: 16
+- id: arima_chronos
+  type: hybrid
+  base: arima
+  residual: chronos
+  params:
+    warmup: 128

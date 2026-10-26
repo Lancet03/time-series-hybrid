@@ -1,0 +1,2 @@
+dataset,model,context,horizon,protocol,pilot,seeds,mse_mean,mse_std,mae_mean,mase_mean
+ETTm1,dlinear,336,48,hn_mvts_code,False,1,0.27006349237028415,,0.3250391537081475,0.7763966958944668

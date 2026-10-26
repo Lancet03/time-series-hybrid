@@ -1,0 +1,1138 @@
+{
+  "name": "Step 5: ARIMA + Moirai (expanded pilot)",
+  "run_id": "20261026T184059Z-cd8a44b0",
+  "status": "completed",
+  "protocol": "common",
+  "config": {
+    "name": "Step 5: ARIMA + Moirai (expanded pilot)",
+    "purpose": "pilot",
+    "protocol": "common",
+    "context": 336,
+    "horizons": [
+      48,
+      96
+    ],
+    "device": "auto",
+    "threads": 4,
+    "output": "../outputs",
+    "cache": "../.cache/huggingface",
+    "model_lock": "model-lock.json",
+    "evaluation": {
+      "batch_size": 8,
+      "val_limit": 16,
+      "test_limit": 16,
+      "val_stride": 1,
+      "test_stride": 1
+    },
+    "datasets": [
+      {
+        "name": "ETTm1",
+        "path": "../data/ETTm1.npy",
+        "seasonality": 96,
+        "frequency": "15min",
+        "split": [
+          0.6,
+          0.2,
+          0.2
+        ],
+        "take_n": 57600
+      },
+      {
+        "name": "Weather",
+        "path": "../data/weather.npy",
+        "seasonality": 144,
+        "frequency": "10min",
+        "split": [
+          0.7,
+          0.1,
+          0.2
+        ]
+      },
+      {
+        "name": "ECL",
+        "path": "../data/electricity.npy",
+        "seasonality": 24,
+        "frequency": "1h",
+        "split": [
+          0.7,
+          0.1,
+          0.2
+        ],
+        "channels": [
+          0,
+          21,
+          42,
+          64,
+          85,
+          106,
+          128,
+          149,
+          170,
+          192,
+          213,
+          234,
+          256,
+          277,
+          298,
+          320
+        ]
+      }
+    ],
+    "models": [
+      {
+        "id": "arima_moirai_base",
+        "type": "arima",
+        "params": {
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse"
+        },
+        "candidates": [
+          {
+            "order": [
+              2,
+              1,
+              0
+            ]
+          },
+          {
+            "order": [
+              2,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "moirai",
+        "type": "moirai",
+        "params": {
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "batch_size": 8,
+          "num_samples": 100,
+          "patch_size": 32
+        }
+      },
+      {
+        "id": "arima_moirai",
+        "type": "hybrid",
+        "base": "arima_moirai_base",
+        "residual": "moirai",
+        "params": {
+          "warmup": 128
+        }
+      }
+    ]
+  },
+  "config_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\configs\\hybrid_moirai.yaml",
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "torch": "2.4.1+cpu",
+    "cuda_available": false,
+    "cuda_device": null,
+    "packages": {
+      "absl-py": "2.5.1",
+      "aiohappyeyeballs": "2.7.1",
+      "aiohttp": "3.14.5",
+      "aiosignal": "1.4.0",
+      "annotated-types": "0.8.0",
+      "antlr4-python3-runtime": "4.9.3",
+      "anyio": "4.15.1",
+      "attrs": "26.1.0",
+      "certifi": "2026.10.23",
+      "charset-normalizer": "3.5.2",
+      "click": "8.5.0",
+      "colorama": "0.4.6",
+      "datasets": "2.17.1",
+      "dill": "0.3.8",
+      "einops": "0.7.0",
+      "filelock": "4.2.4",
+      "frozenlist": "1.8.0",
+      "fsspec": "2023.10.0",
+      "gluonts": "0.14.3",
+      "grpcio": "1.85.0",
+      "h11": "0.16.0",
+      "hf-xet": "1.7.0",
+      "httpcore": "1.0.9",
+      "httpx": "0.28.1",
+      "huggingface_hub": "1.33.0",
+      "hydra-core": "1.3.0",
+      "idna": "3.20",
+      "jax": "0.6.1",
+      "jaxlib": "0.6.1",
+      "jaxtyping": "0.2.38",
+      "Jinja2": "3.1.6",
+      "lightning": "2.6.6",
+      "lightning-utilities": "0.15.3",
+      "Markdown": "3.11.2",
+      "MarkupSafe": "3.0.4",
+      "ml_dtypes": "0.5.4",
+      "mpmath": "1.3.0",
+      "multidict": "7.2.1",
+      "multiprocess": "0.70.16",
+      "networkx": "3.7",
+      "numpy": "1.26.4",
+      "omegaconf": "2.4.0",
+      "opt_einsum": "3.4.0",
+      "orjson": "3.13.0",
+      "packaging": "26.3",
+      "pandas": "2.3.3",
+      "patsy": "1.0.3",
+      "pillow": "13.0.0",
+      "propcache": "0.5.4",
+      "protobuf": "7.36.2",
+      "psutil": "7.2.2",
+      "pyarrow": "19.0.1",
+      "pyarrow-hotfix": "0.7",
+      "pydantic": "2.14.1",
+      "pydantic_core": "2.50.1",
+      "python-dateutil": "3.0.0",
+      "python-dotenv": "1.0.0",
+      "pytorch-lightning": "2.6.6",
+      "pytz": "2026.5",
+      "PyYAML": "6.0.3",
+      "requests": "2.34.2",
+      "safetensors": "0.8.0",
+      "scipy": "1.11.4",
+      "setuptools": "84.2.1",
+      "six": "1.17.0",
+      "statsmodels": "0.14.6",
+      "sympy": "1.14.0",
+      "tensorboard": "2.21.0",
+      "tensorboard-data-server": "0.7.2",
+      "time-series-hybrid": "0.1.0",
+      "toolz": "0.12.1",
+      "torch": "2.4.1",
+      "torchmetrics": "1.9.0",
+      "tqdm": "4.70.1",
+      "typing_extensions": "4.16.0",
+      "typing-inspection": "0.4.4",
+      "tzdata": "2026.5",
+      "uni2ts": "2.0.0",
+      "urllib3": "2.8.0",
+      "wadler_lindig": "0.1.8",
+      "Werkzeug": "3.1.9",
+      "xxhash": "4.0.2",
+      "yarl": "1.25.1"
+    },
+    "git_commit": "7105faad07f8dd27993cd13add92bae735762dc3",
+    "source_sha256": "70ad80fa4e5217437d3e8d9230d66491dd5eae38a410de16db5ed4b0a374285b"
+  },
+  "datasets": [
+    {
+      "name": "ETTm1",
+      "path": "../data/ETTm1.npy",
+      "seasonality": 96,
+      "frequency": "15min",
+      "split": [
+        0.6,
+        0.2,
+        0.2
+      ],
+      "take_n": 57600,
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\ETTm1.npy",
+      "sha256": "f24e26905e8b3044fe68d7f197e59a028abb1f321d03a15036fc9bf29e6872ad",
+      "original_shape": [
+        69680,
+        7
+      ],
+      "used_shape": [
+        57600,
+        7
+      ],
+      "channel_names": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "train_end": 34560,
+      "val_end": 46080,
+      "test_end": 57600,
+      "mean": [
+        7.9900134819611495,
+        2.0387478002096975,
+        5.109928063464273,
+        0.7562241616995178,
+        2.80470208448802,
+        0.7911860229808587,
+        17.12495024489946
+      ],
+      "scale": [
+        5.833092669188608,
+        2.0896456935496084,
+        5.519042716237789,
+        1.924161057907002,
+        1.0405540563014364,
+        0.632442061366721,
+        9.173035273908697
+      ],
+      "mase_scale": [
+        2.378098568463129,
+        0.8387358108467959,
+        2.0615751846771717,
+        0.706912081950658,
+        0.7677600413354195,
+        0.2584931813415007,
+        2.5596855833534993
+      ]
+    },
+    {
+      "name": "Weather",
+      "path": "../data/weather.npy",
+      "seasonality": 144,
+      "frequency": "10min",
+      "split": [
+        0.7,
+        0.1,
+        0.2
+      ],
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\weather.npy",
+      "sha256": "367174e32c3034180d79feb7b6670049e9874198271c70109dfd816eabbc2776",
+      "original_shape": [
+        52696,
+        21
+      ],
+      "used_shape": [
+        52696,
+        21
+      ],
+      "channel_names": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20"
+      ],
+      "train_end": 36887,
+      "val_end": 42157,
+      "test_end": 52696,
+      "mean": [
+        990.6424618429255,
+        11.978743188657251,
+        285.9094998237861,
+        5.474408599235503,
+        67.52999105375878,
+        15.683926315504108,
+        9.844447095182584,
+        5.839411445766801,
+        6.215718545829153,
+        9.94795076856345,
+        1206.7523290047984,
+        1.9474169761704665,
+        3.7608498929162035,
+        175.98528397538428,
+        0.011481009569767126,
+        23.287065903977012,
+        160.64175752975302,
+        318.0403689646759,
+        378.4815870089733,
+        22.81172038929704,
+        411.0543416379755
+      ],
+      "scale": [
+        8.630709833546048,
+        7.718422186776981,
+        7.916676308767531,
+        6.464405778018869,
+        18.755159326241408,
+        8.109081505918006,
+        4.396184747169019,
+        5.902716958360042,
+        2.7998813345512694,
+        4.461935641871606,
+        38.068159995158084,
+        52.09941335817868,
+        2.5959868098469028,
+        86.96403231681457,
+        0.1227842954291551,
+        105.34730507960829,
+        238.7777925095574,
+        468.055552246746,
+        643.3526922078195,
+        7.9779941945883825,
+        383.95709796587886
+      ],
+      "mase_scale": [
+        4.590928340091992,
+        2.876856544103639,
+        3.065106550907655,
+        2.753594698309882,
+        11.856415371635414,
+        2.956283918025202,
+        1.820588683558773,
+        2.8010543504885286,
+        1.163841275889285,
+        1.8551119941213294,
+        15.859040633590075,
+        1.8239572163405275,
+        1.8933927550826006,
+        75.70249843507607,
+        0.022605666385433962,
+        43.30729662792913,
+        74.44014070707347,
+        140.57316686171518,
+        180.3320899218899,
+        2.8935976920774027,
+        36.93970280053343
+      ]
+    },
+    {
+      "name": "ECL",
+      "path": "../data/electricity.npy",
+      "seasonality": 24,
+      "frequency": "1h",
+      "split": [
+        0.7,
+        0.1,
+        0.2
+      ],
+      "channels": [
+        0,
+        21,
+        42,
+        64,
+        85,
+        106,
+        128,
+        149,
+        170,
+        192,
+        213,
+        234,
+        256,
+        277,
+        298,
+        320
+      ],
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\electricity.npy",
+      "sha256": "a41d4f56890ff90887c27eaafbd288a2f49eaa4725d90d969eadf8253a6b9806",
+      "original_shape": [
+        26304,
+        321
+      ],
+      "used_shape": [
+        26304,
+        16
+      ],
+      "channel_names": [
+        "0",
+        "21",
+        "42",
+        "64",
+        "85",
+        "106",
+        "128",
+        "149",
+        "170",
+        "192",
+        "213",
+        "234",
+        "256",
+        "277",
+        "298",
+        "320"
+      ],
+      "train_end": 18412,
+      "val_end": 21044,
+      "test_end": 26304,
+      "mean": [
+        25.08695416033022,
+        894.6671735824463,
+        222.4757223549859,
+        189.24983706278513,
+        74.54920703888769,
+        217.8582446230719,
+        7866.853247881816,
+        1548.8349989137519,
+        751.8609059309147,
+        348.0144470997176,
+        576.4632305018466,
+        362.3731805344341,
+        516.8905605040192,
+        1327.822126873778,
+        7.938735607212688,
+        3361.175700630024
+      ],
+      "scale": [
+        24.649282048283574,
+        298.85709919941985,
+        62.653486593752326,
+        88.24970705086753,
+        66.81187268483428,
+        286.47008235187286,
+        1842.4775402978598,
+        422.5273585367859,
+        228.99630112696843,
+        114.38058162850632,
+        177.64294885291366,
+        111.4386212618474,
+        133.9420419013938,
+        348.56772009053134,
+        13.89161689951256,
+        554.4267023823821
+      ],
+      "mase_scale": [
+        7.8453882967152495,
+        101.15020665651512,
+        27.356754405046768,
+        22.77702849684577,
+        27.571677180770067,
+        149.5209375679791,
+        1060.744724820535,
+        98.64754187513596,
+        50.12877963889493,
+        25.04807483141179,
+        30.80775505764629,
+        20.010441592342833,
+        29.269741135523166,
+        68.94974983685012,
+        1.7339569284315859,
+        295.5836415053296
+      ]
+    }
+  ],
+  "models": [
+    {
+      "dataset": "ETTm1",
+      "model": "arima_moirai_base",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.658370407173779
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 3.714170187886976
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima_moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.9067524883739116
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima_moirai_base",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 1.0191193477957667
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 38848.30514651771
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima_moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 23.093107530203504
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_moirai_base",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          1,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          1,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.37231649846561227
+    },
+    {
+      "dataset": "Weather",
+      "model": "moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 0.9724291012858061
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            1,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 49956.1280869229
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_moirai_base",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          1,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          1,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.6694869776290882
+    },
+    {
+      "dataset": "Weather",
+      "model": "moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 9542.357544000337
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            1,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 7568447923578.088
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_moirai_base",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.6818615387684736
+    },
+    {
+      "dataset": "ECL",
+      "model": "moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 0.893242590162736
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_moirai",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 1384.9406083940642
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_moirai_base",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "initialization": "approximate_diffuse",
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.7774684313327654
+    },
+    {
+      "dataset": "ECL",
+      "model": "moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "batch_size": 8,
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "metadata": {
+        "family": "moirai",
+        "checkpoint": "Salesforce/moirai-1.1-R-small",
+        "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "sample mean",
+        "num_samples": 100,
+        "patch_size": 32
+      },
+      "validation_mse": 1308.636615236441
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_moirai",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "initialization": "approximate_diffuse",
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "moirai",
+          "checkpoint": "Salesforce/moirai-1.1-R-small",
+          "requested_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "resolved_revision": "0c24ab99db2c1a70ea2a0fc03bf113329772ac64",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "sample mean",
+          "num_samples": 100,
+          "patch_size": 32
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 98277.72260969946
+    }
+  ],
+  "memory_note": "whole-process sampled RSS, includes cached FMs"
+}

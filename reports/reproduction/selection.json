@@ -1,0 +1,26 @@
+[
+  {
+    "dataset": "ETTm1",
+    "model": "dlinear",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 50,
+      "batch_size": 64,
+      "lr": 0.0001,
+      "revin": true
+    },
+    "validation": {
+      "mse": 0.32132731717540514,
+      "mae": 0.3701821859281517,
+      "mse_raw": 5.431915406545898,
+      "mae_raw": 1.2916078827130633,
+      "mase": 0.9079262580055827,
+      "n_values": 3742032,
+      "n_mase_values": 3742032,
+      "mse_micro": 0.3211789071527525,
+      "mae_micro": 0.37046782741082385
+    }
+  }
+]

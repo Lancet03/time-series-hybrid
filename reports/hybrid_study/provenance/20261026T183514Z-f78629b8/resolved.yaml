@@ -1,0 +1,101 @@
+name: 'Step 5: ARIMA + Chronos / TimesFM (expanded pilot)'
+purpose: pilot
+protocol: common
+context: 336
+horizons:
+- 48
+- 96
+device: auto
+threads: 4
+output: ../outputs
+cache: ../.cache/huggingface
+model_lock: model-lock.json
+evaluation:
+  batch_size: 8
+  val_limit: 16
+  test_limit: 16
+  val_stride: 1
+  test_stride: 1
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600
+- name: Weather
+  path: ../data/weather.npy
+  seasonality: 144
+  frequency: 10min
+  split:
+  - 0.7
+  - 0.1
+  - 0.2
+- name: ECL
+  path: ../data/electricity.npy
+  seasonality: 24
+  frequency: 1h
+  split:
+  - 0.7
+  - 0.1
+  - 0.2
+  channels:
+  - 0
+  - 21
+  - 42
+  - 64
+  - 85
+  - 106
+  - 128
+  - 149
+  - 170
+  - 192
+  - 213
+  - 234
+  - 256
+  - 277
+  - 298
+  - 320
+models:
+- id: arima
+  type: arima
+  params:
+    fit_prefix: 128
+    maxiter: 100
+    initialization: approximate_diffuse
+  candidates:
+  - order:
+    - 2
+    - 1
+    - 0
+  - order:
+    - 2
+    - 0
+    - 0
+- id: chronos
+  type: chronos
+  params:
+    checkpoint: amazon/chronos-bolt-tiny
+    revision: a0e552de83495b5c28c14c71c374f3e33280b340
+    batch_size: 16
+- id: timesfm
+  type: timesfm
+  params:
+    checkpoint: google/timesfm-2.5-200m-pytorch
+    revision: 1d952420fba87f3c6dee4f240de0f1a0fbc790e3
+    batch_size: 8
+- id: arima_chronos
+  type: hybrid
+  base: arima
+  residual: chronos
+  params:
+    warmup: 128
+- id: arima_timesfm
+  type: hybrid
+  base: arima
+  residual: timesfm
+  params:
+    warmup: 128

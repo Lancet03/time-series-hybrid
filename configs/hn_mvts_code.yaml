@@ -1,0 +1,53 @@
+name: HN-MVTS code protocol (author logs, not resolved paper split)
+purpose: reproduction
+protocol: hn_mvts_code
+context: 336
+horizons:
+- 48
+- 96
+- 192
+- 336
+device: auto
+threads: 4
+output: ../outputs
+references: ../references/hn_mvts_author.csv
+evaluation:
+  batch_size: 64
+  val_stride: 1
+  test_stride: 1
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600
+- name: Weather
+  path: ../data/weather.npy
+  seasonality: 144
+  frequency: 10min
+  split:
+  - 0.7
+  - 0.1
+  - 0.2
+- name: ECL
+  path: ../data/electricity.npy
+  seasonality: 24
+  frequency: 1h
+  split:
+  - 0.7
+  - 0.1
+  - 0.2
+models:
+- id: dlinear
+  type: dlinear
+  seeds:
+  - 0
+  params:
+    epochs: 50
+    batch_size: 64
+    lr: 0.0001
+    revin: true

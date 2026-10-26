@@ -1,0 +1,8 @@
+{
+  "cases": 18,
+  "datasets": 3,
+  "hybrids": 3,
+  "mse_beats_base": 10,
+  "mse_beats_fm": 0,
+  "mse_beats_both": 0
+}

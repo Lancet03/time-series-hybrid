@@ -1,0 +1,213 @@
+{
+  "name": "ETTm1 H48 author-log reproduction",
+  "run_id": "20261026T185131Z-3d48c449",
+  "status": "completed",
+  "protocol": "hn_mvts_code",
+  "config": {
+    "name": "ETTm1 H48 author-log reproduction",
+    "purpose": "reproduction",
+    "protocol": "hn_mvts_code",
+    "context": 336,
+    "horizons": [
+      48
+    ],
+    "device": "auto",
+    "threads": 4,
+    "output": "../outputs",
+    "references": "../references/hn_mvts_author.csv",
+    "evaluation": {
+      "batch_size": 64,
+      "val_stride": 1,
+      "test_stride": 1
+    },
+    "datasets": [
+      {
+        "name": "ETTm1",
+        "path": "../data/ETTm1.npy",
+        "seasonality": 96,
+        "frequency": "15min",
+        "split": [
+          0.6,
+          0.2,
+          0.2
+        ],
+        "take_n": 57600
+      }
+    ],
+    "models": [
+      {
+        "id": "dlinear",
+        "type": "dlinear",
+        "seeds": [
+          0
+        ],
+        "params": {
+          "epochs": 50,
+          "batch_size": 64,
+          "lr": 0.0001,
+          "revin": true
+        }
+      }
+    ]
+  },
+  "config_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\configs\\reproduce_ettm1_h48.yaml",
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "torch": "2.14.1+cpu",
+    "cuda_available": false,
+    "cuda_device": null,
+    "packages": {
+      "accelerate": "1.15.0",
+      "certifi": "2026.10.23",
+      "charset-normalizer": "3.5.2",
+      "chronos-forecasting": "2.3.2",
+      "colorama": "0.4.6",
+      "contourpy": "1.4.0",
+      "cycler": "0.12.1",
+      "einops": "0.8.2",
+      "filelock": "4.2.4",
+      "fonttools": "4.67.0",
+      "fsspec": "2026.9.0",
+      "huggingface_hub": "0.36.2",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "inquirerpy": "0.3.4",
+      "Jinja2": "3.1.6",
+      "kiwisolver": "1.5.1",
+      "MarkupSafe": "3.0.4",
+      "matplotlib": "3.11.2",
+      "mpmath": "1.3.0",
+      "networkx": "3.7",
+      "numpy": "2.5.4",
+      "packaging": "26.3",
+      "pandas": "3.1.0",
+      "patsy": "1.0.3",
+      "pfzy": "0.3.4",
+      "pillow": "13.0.0",
+      "pluggy": "1.7.0",
+      "prompt_toolkit": "3.0.53",
+      "psutil": "7.2.2",
+      "pyarrow": "26.0.0",
+      "Pygments": "2.21.0",
+      "pyparsing": "3.3.3",
+      "pytest": "9.1.1",
+      "python-dateutil": "3.0.0",
+      "PyYAML": "6.0.3",
+      "regex": "2026.9.29",
+      "requests": "2.34.2",
+      "ruff": "0.17.2",
+      "safetensors": "0.8.0",
+      "scipy": "1.18.1",
+      "setuptools": "84.2.1",
+      "six": "1.17.0",
+      "statsmodels": "0.14.6",
+      "sympy": "1.14.0",
+      "timesfm": "2.0.2",
+      "time-series-hybrid": "0.1.0",
+      "tokenizers": "0.22.2",
+      "torch": "2.14.1",
+      "tqdm": "4.70.1",
+      "transformers": "4.57.6",
+      "truststore": "0.10.5",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "urllib3": "2.8.0",
+      "wcwidth": "0.9.4"
+    },
+    "git_commit": "7105faad07f8dd27993cd13add92bae735762dc3",
+    "source_sha256": "066379002c4733699424a602cdfda442dfc241f1443af4a501ceea480dd3729f"
+  },
+  "datasets": [
+    {
+      "name": "ETTm1",
+      "path": "../data/ETTm1.npy",
+      "seasonality": 96,
+      "frequency": "15min",
+      "split": [
+        0.6,
+        0.2,
+        0.2
+      ],
+      "take_n": 57600,
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\ETTm1.npy",
+      "sha256": "f24e26905e8b3044fe68d7f197e59a028abb1f321d03a15036fc9bf29e6872ad",
+      "original_shape": [
+        69680,
+        7
+      ],
+      "used_shape": [
+        57600,
+        7
+      ],
+      "channel_names": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "train_end": 34560,
+      "val_end": 46080,
+      "test_end": 57600,
+      "mean": [
+        7.9900134819611495,
+        2.0387478002096975,
+        5.109928063464273,
+        0.7562241616995178,
+        2.80470208448802,
+        0.7911860229808587,
+        17.12495024489946
+      ],
+      "scale": [
+        5.833092669188608,
+        2.0896456935496084,
+        5.519042716237789,
+        1.9241610579070023,
+        1.0405540563014364,
+        0.632442061366721,
+        9.173035273908697
+      ],
+      "mase_scale": [
+        2.378098568463129,
+        0.8387358108467959,
+        2.0615751846771717,
+        0.706912081950658,
+        0.7677600413354195,
+        0.2584931813415007,
+        2.5596855833534993
+      ]
+    }
+  ],
+  "models": [
+    {
+      "dataset": "ETTm1",
+      "model": "dlinear",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 50,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 50,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": null,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 41,
+        "training_windows": 34177
+      },
+      "validation_mse": 0.3185871134006295
+    }
+  ],
+  "memory_note": "whole-process sampled RSS, includes cached FMs"
+}

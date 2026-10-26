@@ -1,0 +1,15 @@
+{
+  "note": "See validation selection in each source run",
+  "sources": [
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\20261026T183514Z-f78629b8",
+      "run_id": "20261026T183514Z-f78629b8",
+      "source_sha256": "b8cd5351f4fa9189f2447785c190e0fd53482ef2e96c045daf34b1eda79e3395"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\20261026T184059Z-cd8a44b0",
+      "run_id": "20261026T184059Z-cd8a44b0",
+      "source_sha256": "70ad80fa4e5217437d3e8d9230d66491dd5eae38a410de16db5ed4b0a374285b"
+    }
+  ]
+}

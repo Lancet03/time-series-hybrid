@@ -1,0 +1,1070 @@
+[
+  {
+    "dataset": "ETTm1",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 1.0827958804772368,
+      "mae": 0.6615617075167881,
+      "mse_raw": 23.478656465000398,
+      "mae_raw": 2.516361745959905,
+      "mase": 1.601495374207793,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.00015519999942625873,
+    "fit_seconds": 6.000009307172149e-07,
+    "validation_seconds": 2.121014699998341
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.6583703670006145,
+      "mae": 0.569275264593505,
+      "mse_raw": 12.952338493794676,
+      "mae_raw": 2.1376050046017294,
+      "mase": 1.4100987458994567,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.00019290000091132242,
+    "fit_seconds": 6.999998731771484e-07,
+    "validation_seconds": 1.2585966999995435
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.24264769943185924,
+      "mae": 0.3191554924290661,
+      "mse_raw": 3.6409588256635614,
+      "mae_raw": 1.1019862246218768,
+      "mase": 0.795178605596117,
+      "pinball_0.1": 0.08921710082462855,
+      "pinball_0.5": 0.15957775570097424,
+      "pinball_0.9": 0.06820015680222284,
+      "coverage_80": 0.7745535714285714,
+      "width_80": 0.9956919352213541,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.574172610328311,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 1.7424187000015081,
+    "fit_seconds": 8.000006346264854e-07,
+    "validation_seconds": 0.11533930000041437
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.2727149246896817,
+      "mae": 0.3305003864742546,
+      "mse_raw": 2.9760509048907684,
+      "mae_raw": 1.050921616840916,
+      "mase": 0.8131874738179738,
+      "pinball_0.1": 0.08817609151204427,
+      "pinball_0.5": 0.16525018782842726,
+      "pinball_0.9": 0.07383178529285249,
+      "coverage_80": 0.7892485119047619,
+      "width_80": 0.9864990597679502,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.6200786772228422,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.7284485000000132,
+    "fit_seconds": 7.00001692166552e-07,
+    "validation_seconds": 4.013964599998872
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima_chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.5976603313122318,
+      "mae": 0.5387160323890356,
+      "mse_raw": 11.566600778232901,
+      "mae_raw": 2.0062961242390096,
+      "mase": 1.3331296353887498,
+      "pinball_0.1": 0.1384468375622185,
+      "pinball_0.5": 0.2693580161945178,
+      "pinball_0.9": 0.25555161505332485,
+      "coverage_80": 0.30710565476190477,
+      "width_80": 0.4727490412970794,
+      "crossing_80": 0.0,
+      "interval_score_80": 3.9399845261554343,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.00046440000005532056,
+    "fit_seconds": 8.999995770864189e-07,
+    "validation_seconds": 1.3439823999997316
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima_timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.6138413328041517,
+      "mae": 0.5458723126614673,
+      "mse_raw": 11.91413529827012,
+      "mae_raw": 2.0368658117763094,
+      "mase": 1.3515009294844962,
+      "pinball_0.1": 0.14090750204123795,
+      "pinball_0.5": 0.27293615633073365,
+      "pinball_0.9": 0.2595363265287439,
+      "coverage_80": 0.31045386904761907,
+      "width_80": 0.4745247592473745,
+      "crossing_80": 0.0,
+      "interval_score_80": 4.004438285699818,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.00020369999947433826,
+    "fit_seconds": 6.999998731771484e-07,
+    "validation_seconds": 4.168550500000492
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 1.230532665747977,
+      "mae": 0.7400857234391002,
+      "mse_raw": 26.197321961492623,
+      "mae_raw": 2.7947516298360084,
+      "mase": 1.8233776554656893,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.00018479999926057644,
+    "fit_seconds": 4.000012268079445e-07,
+    "validation_seconds": 1.9287306000005628
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 1.0191221816229457,
+      "mae": 0.6943700152063055,
+      "mse_raw": 21.33924105733081,
+      "mae_raw": 2.6892686606804252,
+      "mase": 1.7403223294627157,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.00019810000048892107,
+    "fit_seconds": 5.000001692678779e-07,
+    "validation_seconds": 1.4248498000015388
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.5014270802833583,
+      "mae": 0.4259920868053411,
+      "mse_raw": 7.091553683862896,
+      "mae_raw": 1.4087090599762764,
+      "mase": 1.0504071910754418,
+      "pinball_0.1": 0.11222164971487862,
+      "pinball_0.5": 0.21299602871849424,
+      "pinball_0.9": 0.12085303806123279,
+      "coverage_80": 0.69921875,
+      "width_80": 0.9453062329973493,
+      "crossing_80": 0.0,
+      "interval_score_80": 2.3307469685872397,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.00020990000120946206,
+    "fit_seconds": 1.8999999156221747e-06,
+    "validation_seconds": 1.0563325000002806
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.4695567169021594,
+      "mae": 0.4166993075894836,
+      "mse_raw": 6.319061174068051,
+      "mae_raw": 1.3574566940841772,
+      "mase": 1.0298565055442692,
+      "pinball_0.1": 0.10697387513660249,
+      "pinball_0.5": 0.2083496820359003,
+      "pinball_0.9": 0.10877754574730283,
+      "coverage_80": 0.7647879464285714,
+      "width_80": 1.1001393454415458,
+      "crossing_80": 0.0,
+      "interval_score_80": 2.1575142996651784,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.0002464000008330913,
+    "fit_seconds": 1.5999994502635673e-06,
+    "validation_seconds": 3.9875121999994008
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima_chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.9650493944830169,
+      "mae": 0.6710313902420934,
+      "mse_raw": 19.993776584347053,
+      "mae_raw": 2.5863189648425,
+      "mase": 1.6796583261035598,
+      "pinball_0.1": 0.2107858588346265,
+      "pinball_0.5": 0.3355156951210467,
+      "pinball_0.9": 0.3181008570593456,
+      "coverage_80": 0.25353422619047616,
+      "width_80": 0.432987843299934,
+      "crossing_80": 0.0,
+      "interval_score_80": 5.288867158939722,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.00018340000133321155,
+    "fit_seconds": 6.999998731771484e-07,
+    "validation_seconds": 2.109839999999167
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "arima_timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.9775915249527758,
+      "mae": 0.6755370150596571,
+      "mse_raw": 20.43489400875897,
+      "mae_raw": 2.6130110022839808,
+      "mase": 1.6913709689564491,
+      "pinball_0.1": 0.20995943463027064,
+      "pinball_0.5": 0.33776850752982857,
+      "pinball_0.9": 0.3127218753984649,
+      "coverage_80": 0.2631138392857143,
+      "width_80": 0.4675098945614688,
+      "crossing_80": 0.0,
+      "interval_score_80": 5.226813100287355,
+      "n_values": 10752,
+      "n_mase_values": 10752
+    },
+    "model_init_seconds": 0.00018180000006395858,
+    "fit_seconds": 8.000006346264854e-07,
+    "validation_seconds": 4.2905463999995845
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.37231730986743383,
+      "mae": 0.3093314442043865,
+      "mse_raw": 29793.876554003014,
+      "mae_raw": 43.57255227600368,
+      "mase": 0.7958340682648053,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00019020000036107376,
+    "fit_seconds": 3.9999940781854093e-07,
+    "validation_seconds": 5.419796500000302
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.41279289629029303,
+      "mae": 0.3497191825137877,
+      "mse_raw": 16480.347539510425,
+      "mae_raw": 38.70624752134738,
+      "mase": 0.8878552794982559,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00020389999917824753,
+    "fit_seconds": 4.000012268079445e-07,
+    "validation_seconds": 5.663528799999767
+  },
+  {
+    "dataset": "Weather",
+    "model": "chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.26106351752060825,
+      "mae": 0.2654728342135068,
+      "mse_raw": 17159.82174828835,
+      "mae_raw": 33.361637815898874,
+      "mase": 0.6827813728946637,
+      "pinball_0.1": 0.06256106543162512,
+      "pinball_0.5": 0.13273641798231336,
+      "pinball_0.9": 0.0777812988039047,
+      "coverage_80": 0.7384672619047619,
+      "width_80": 0.6843939887152778,
+      "crossing_80": 0.0006200396825396825,
+      "interval_score_80": 1.4034237331814237,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00018770000133372378,
+    "fit_seconds": 1.3000008038943633e-06,
+    "validation_seconds": 0.28357169999981124
+  },
+  {
+    "dataset": "Weather",
+    "model": "timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.15364918732222227,
+      "mae": 0.1915498357586841,
+      "mse_raw": 4041.188336382404,
+      "mae_raw": 15.654902258374225,
+      "mase": 0.4559279716491269,
+      "pinball_0.1": 0.04364607826111808,
+      "pinball_0.5": 0.09577492305210658,
+      "pinball_0.9": 0.047744697994656034,
+      "coverage_80": 0.7960689484126984,
+      "width_80": 0.5736220829070561,
+      "crossing_80": 0.0,
+      "interval_score_80": 0.9139077928331163,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00019160000010742806,
+    "fit_seconds": 1.4999986888142303e-06,
+    "validation_seconds": 12.094875500000853
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima_chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.370505571858181,
+      "mae": 0.3096412657340288,
+      "mse_raw": 29546.045637250154,
+      "mae_raw": 43.48097367718326,
+      "mase": 0.7969721349481463,
+      "pinball_0.1": 0.13870976156955633,
+      "pinball_0.5": 0.1548206328670144,
+      "pinball_0.9": 0.12974754384286388,
+      "coverage_80": 0.29148065476190477,
+      "width_80": 0.18120257279960403,
+      "crossing_80": 0.000248015873015873,
+      "interval_score_80": 2.684573054124202,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00019180000163032673,
+    "fit_seconds": 7.999988156370819e-07,
+    "validation_seconds": 5.6894307999991725
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima_timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.3660498809866886,
+      "mae": 0.308305590363898,
+      "mse_raw": 29288.216695957537,
+      "mae_raw": 43.189678334864126,
+      "mase": 0.7939879975018415,
+      "pinball_0.1": 0.13802685490427657,
+      "pinball_0.5": 0.154152795181949,
+      "pinball_0.9": 0.12839524878905242,
+      "coverage_80": 0.30636160714285715,
+      "width_80": 0.1793090556732769,
+      "crossing_80": 0.0,
+      "interval_score_80": 2.66422103693329,
+      "n_values": 16128,
+      "n_mase_values": 16128
+    },
+    "model_init_seconds": 0.00019109999993816018,
+    "fit_seconds": 8.000006346264854e-07,
+    "validation_seconds": 14.046898799999326
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.6695154970053365,
+      "mae": 0.4326911072166683,
+      "mse_raw": 41503.24618076595,
+      "mae_raw": 51.98145805235007,
+      "mase": 1.1214675076006047,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.0001874999998108251,
+    "fit_seconds": 6.000009307172149e-07,
+    "validation_seconds": 5.29558999999972
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.7721812687614859,
+      "mae": 0.4900238054243103,
+      "mse_raw": 19155.844253545623,
+      "mae_raw": 43.864778763917975,
+      "mase": 1.2510458558536317,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.0002184999993914971,
+    "fit_seconds": 6.000009307172149e-07,
+    "validation_seconds": 5.462280400000964
+  },
+  {
+    "dataset": "Weather",
+    "model": "chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.48045407805682216,
+      "mae": 0.35822221248854147,
+      "mse_raw": 16568.10526620773,
+      "mae_raw": 36.133246921934045,
+      "mase": 0.9182789794576677,
+      "pinball_0.1": 0.08107239859444755,
+      "pinball_0.5": 0.17911111740838914,
+      "pinball_0.9": 0.1083866830856081,
+      "coverage_80": 0.6958085317460317,
+      "width_80": 0.8193616110181051,
+      "crossing_80": 6.200396825396825e-05,
+      "interval_score_80": 1.894590831938244,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.00018790000103763305,
+    "fit_seconds": 1.0999992809956893e-06,
+    "validation_seconds": 2.7994926999999734
+  },
+  {
+    "dataset": "Weather",
+    "model": "timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.2965670305365854,
+      "mae": 0.27309073097386916,
+      "mse_raw": 5403.333384064786,
+      "mae_raw": 18.89104002362373,
+      "mase": 0.672021065731366,
+      "pinball_0.1": 0.060873001340835814,
+      "pinball_0.5": 0.1365453629266648,
+      "pinball_0.9": 0.0670940913851299,
+      "coverage_80": 0.7605716765873016,
+      "width_80": 0.7375816466316344,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.2796709575350322,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.0002480999992258148,
+    "fit_seconds": 2.0000006770715117e-06,
+    "validation_seconds": 12.21614690000024
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima_chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.6726911657196843,
+      "mae": 0.43420139491314375,
+      "mse_raw": 41387.064484426366,
+      "mae_raw": 52.00137645670573,
+      "mase": 1.1265140958162194,
+      "pinball_0.1": 0.18247572035246332,
+      "pinball_0.5": 0.21710069745657187,
+      "pinball_0.9": 0.20537162743422072,
+      "coverage_80": 0.23781622023809523,
+      "width_80": 0.20143516698639022,
+      "crossing_80": 0.0007750496031746031,
+      "interval_score_80": 3.87847347786684,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.00019670000074256677,
+    "fit_seconds": 8.999995770864189e-07,
+    "validation_seconds": 7.203572099999292
+  },
+  {
+    "dataset": "Weather",
+    "model": "arima_timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.6741416484831487,
+      "mae": 0.43515842499301427,
+      "mse_raw": 41318.401577403485,
+      "mae_raw": 52.007647126026036,
+      "mase": 1.130835924127202,
+      "pinball_0.1": 0.17941884928385046,
+      "pinball_0.5": 0.21757921249650714,
+      "pinball_0.9": 0.20593581545802406,
+      "coverage_80": 0.2836371527777778,
+      "width_80": 0.2831400454216392,
+      "crossing_80": 0.0,
+      "interval_score_80": 3.8535466474187454,
+      "n_values": 32256,
+      "n_mase_values": 32256
+    },
+    "model_init_seconds": 0.00020190000032016542,
+    "fit_seconds": 1.0000003385357559e-06,
+    "validation_seconds": 13.948119999999108
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 1.3373570274236801,
+      "mae": 0.8429190993587347,
+      "mse_raw": 535066.5658639272,
+      "mae_raw": 299.7773974610331,
+      "mase": 3.1676412031109,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.0001815999985410599,
+    "fit_seconds": 5.000001692678779e-07,
+    "validation_seconds": 3.658458199999586
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.6818614864937845,
+      "mae": 0.667506324425136,
+      "mse_raw": 276622.99121763237,
+      "mae_raw": 225.46575015235453,
+      "mase": 2.564769320784544,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.00022019999960321002,
+    "fit_seconds": 3.9999940781854093e-07,
+    "validation_seconds": 2.3705690000006143
+  },
+  {
+    "dataset": "ECL",
+    "model": "chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.15178220997636946,
+      "mae": 0.219189519377989,
+      "mse_raw": 73982.9363017319,
+      "mae_raw": 86.86882832298436,
+      "mase": 0.7897447472564649,
+      "pinball_0.1": 0.05039936304092407,
+      "pinball_0.5": 0.10959476232528687,
+      "pinball_0.9": 0.061652173598607383,
+      "coverage_80": 0.806884765625,
+      "width_80": 0.705516497294108,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.1205153465270996,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.00019600000086938962,
+    "fit_seconds": 1.8999999156221747e-06,
+    "validation_seconds": 0.2121683999994275
+  },
+  {
+    "dataset": "ECL",
+    "model": "timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.12460802437860426,
+      "mae": 0.20938043038554355,
+      "mse_raw": 66007.59683675352,
+      "mae_raw": 82.06549057431015,
+      "mase": 0.7422752983782243,
+      "pinball_0.1": 0.04947507381439209,
+      "pinball_0.5": 0.10469021399815877,
+      "pinball_0.9": 0.05853348970413208,
+      "coverage_80": 0.8226725260416666,
+      "width_80": 0.6921035448710123,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.0800855954488118,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.00019640000027720816,
+    "fit_seconds": 1.2000000424450263e-06,
+    "validation_seconds": 9.225765200000751
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima_chronos",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.5589101008690532,
+      "mae": 0.5846806079404523,
+      "mse_raw": 240418.222499019,
+      "mae_raw": 204.56353301397158,
+      "mase": 2.2391776352984962,
+      "pinball_0.1": 0.21001211895262517,
+      "pinball_0.5": 0.29234030397022615,
+      "pinball_0.9": 0.1875265689497373,
+      "coverage_80": 0.3063151041666667,
+      "width_80": 0.6541197385034915,
+      "crossing_80": 0.0,
+      "interval_score_80": 3.975386879023624,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.00019889999930455815,
+    "fit_seconds": 6.999998731771484e-07,
+    "validation_seconds": 2.5578135999985534
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima_timesfm",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.5605226428919275,
+      "mae": 0.5936584891446725,
+      "mse_raw": 255865.4294050431,
+      "mae_raw": 209.11749375730153,
+      "mase": 2.264589716358959,
+      "pinball_0.1": 0.21872570283309165,
+      "pinball_0.5": 0.2968292445723362,
+      "pinball_0.9": 0.19445952573380462,
+      "coverage_80": 0.2867838541666667,
+      "width_80": 0.6049825996274478,
+      "crossing_80": 0.0,
+      "interval_score_80": 4.131852285668962,
+      "n_values": 12288,
+      "n_mase_values": 12288
+    },
+    "model_init_seconds": 0.00019629999951575883,
+    "fit_seconds": 6.999998731771484e-07,
+    "validation_seconds": 8.977328200000557
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        1,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 2.1690611802584177,
+      "mae": 0.9333741388988649,
+      "mse_raw": 617062.6477510361,
+      "mae_raw": 312.5083582109406,
+      "mase": 3.786303726394936,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00019459999930404592,
+    "fit_seconds": 6.000009307172149e-07,
+    "validation_seconds": 3.5558161000008113
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 1,
+    "params": {
+      "fit_prefix": 128,
+      "maxiter": 100,
+      "initialization": "approximate_diffuse",
+      "order": [
+        2,
+        0,
+        0
+      ]
+    },
+    "validation": {
+      "mse": 0.7774685483830591,
+      "mae": 0.6904370051663399,
+      "mse_raw": 313922.2934061048,
+      "mae_raw": 238.86106121672438,
+      "mase": 2.6326914062657623,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00019980000070063397,
+    "fit_seconds": 5.000001692678779e-07,
+    "validation_seconds": 2.478395399999499
+  },
+  {
+    "dataset": "ECL",
+    "model": "chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "amazon/chronos-bolt-tiny",
+      "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+      "batch_size": 16
+    },
+    "validation": {
+      "mse": 0.2002724710944258,
+      "mae": 0.24097182527230862,
+      "mse_raw": 73811.42990316603,
+      "mae_raw": 91.54538125797428,
+      "mase": 0.855156545931805,
+      "pinball_0.1": 0.05522319674491882,
+      "pinball_0.5": 0.12048592170079549,
+      "pinball_0.9": 0.0684179961681366,
+      "coverage_80": 0.7787272135416666,
+      "width_80": 0.6755901972452799,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.2364118893941243,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00020179999955871608,
+    "fit_seconds": 1.4999986888142303e-06,
+    "validation_seconds": 2.1605687999999645
+  },
+  {
+    "dataset": "ECL",
+    "model": "timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "checkpoint": "google/timesfm-2.5-200m-pytorch",
+      "revision": "1d952420fba87f3c6dee4f240de0f1a0fbc790e3",
+      "batch_size": 8
+    },
+    "validation": {
+      "mse": 0.20016064418385895,
+      "mae": 0.23315843799299074,
+      "mse_raw": 71388.92913951598,
+      "mae_raw": 88.41585288080098,
+      "mase": 0.8193977400901638,
+      "pinball_0.1": 0.054551144440968834,
+      "pinball_0.5": 0.11657921473185222,
+      "pinball_0.9": 0.06968884666760762,
+      "coverage_80": 0.8098551432291666,
+      "width_80": 0.730173667271932,
+      "crossing_80": 0.0,
+      "interval_score_80": 1.2423998514811199,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00019430000065767672,
+    "fit_seconds": 1.0999992809956893e-06,
+    "validation_seconds": 9.39175410000098
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima_chronos",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.6233736257140199,
+      "mae": 0.6048113742488844,
+      "mse_raw": 274785.3864035383,
+      "mae_raw": 216.44452238616313,
+      "mase": 2.287852693688892,
+      "pinball_0.1": 0.21962909060876568,
+      "pinball_0.5": 0.3024056871244422,
+      "pinball_0.9": 0.20116693903127167,
+      "coverage_80": 0.2802327473958333,
+      "width_80": 0.6233681486351978,
+      "crossing_80": 0.0,
+      "interval_score_80": 4.2079602964003735,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00024669999947946053,
+    "fit_seconds": 1.3000008038943633e-06,
+    "validation_seconds": 4.687534099999539
+  },
+  {
+    "dataset": "ECL",
+    "model": "arima_timesfm",
+    "horizon": 96,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "warmup": 128
+    },
+    "validation": {
+      "mse": 0.6484598825020399,
+      "mae": 0.6167151558968454,
+      "mse_raw": 277863.95509116765,
+      "mae_raw": 218.35594488292725,
+      "mase": 2.3408635919659786,
+      "pinball_0.1": 0.2216025424839905,
+      "pinball_0.5": 0.3083575779484227,
+      "pinball_0.9": 0.2058249718626349,
+      "coverage_80": 0.2751057942708333,
+      "width_80": 0.6192132381873563,
+      "crossing_80": 0.0,
+      "interval_score_80": 4.274275143466253,
+      "n_values": 24576,
+      "n_mase_values": 24576
+    },
+    "model_init_seconds": 0.00020620000032067765,
+    "fit_seconds": 1.0999992809956893e-06,
+    "validation_seconds": 8.940689799999745
+  }
+]

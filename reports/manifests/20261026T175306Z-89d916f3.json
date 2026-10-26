@@ -1,0 +1,1463 @@
+{
+  "name": "Three-dataset CPU pilot (subsets, not paper reproduction)",
+  "run_id": "20261026T175306Z-89d916f3",
+  "status": "completed",
+  "protocol": "common",
+  "config": {
+    "name": "Three-dataset CPU pilot (subsets, not paper reproduction)",
+    "purpose": "pilot",
+    "protocol": "common",
+    "context": 336,
+    "horizons": [
+      48,
+      96
+    ],
+    "device": "auto",
+    "threads": 4,
+    "output": "../outputs",
+    "cache": "../.cache/huggingface",
+    "model_lock": "model-lock.json",
+    "references": "../references/hn_mvts_author.csv",
+    "evaluation": {
+      "batch_size": 8,
+      "val_limit": 8,
+      "test_limit": 8,
+      "val_stride": 1,
+      "test_stride": 1
+    },
+    "datasets": [
+      {
+        "name": "ETTm1",
+        "path": "../data/ETTm1.npy",
+        "seasonality": 96,
+        "frequency": "15min",
+        "split": [
+          0.6,
+          0.2,
+          0.2
+        ],
+        "take_n": 57600,
+        "channels": [
+          0,
+          1
+        ]
+      },
+      {
+        "name": "Weather",
+        "path": "../data/weather.npy",
+        "seasonality": 144,
+        "frequency": "10min",
+        "split": [
+          0.7,
+          0.1,
+          0.2
+        ],
+        "channels": [
+          0,
+          1
+        ]
+      },
+      {
+        "name": "ECL",
+        "path": "../data/electricity.npy",
+        "seasonality": 24,
+        "frequency": "1h",
+        "split": [
+          0.7,
+          0.1,
+          0.2
+        ],
+        "channels": [
+          0,
+          1
+        ]
+      }
+    ],
+    "models": [
+      {
+        "id": "last_value",
+        "type": "last_value"
+      },
+      {
+        "id": "seasonal_naive",
+        "type": "seasonal_naive"
+      },
+      {
+        "id": "ar",
+        "type": "ar",
+        "params": {
+          "fit_prefix": 128
+        },
+        "candidates": [
+          {
+            "order": 16
+          },
+          {
+            "order": 32
+          }
+        ]
+      },
+      {
+        "id": "arima",
+        "type": "arima",
+        "params": {
+          "fit_prefix": 128,
+          "maxiter": 100
+        },
+        "candidates": [
+          {
+            "order": [
+              2,
+              1,
+              0
+            ]
+          },
+          {
+            "order": [
+              2,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ets",
+        "type": "ets",
+        "params": {
+          "trend": "add"
+        }
+      },
+      {
+        "id": "dlinear",
+        "type": "dlinear",
+        "seeds": [
+          0
+        ],
+        "params": {
+          "epochs": 5,
+          "batch_size": 64,
+          "lr": 0.0001,
+          "revin": true,
+          "train_limit": 1024
+        }
+      },
+      {
+        "id": "chronos",
+        "type": "chronos",
+        "params": {
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "batch_size": 16
+        }
+      },
+      {
+        "id": "arima_chronos",
+        "type": "hybrid",
+        "base": "arima",
+        "residual": "chronos",
+        "params": {
+          "warmup": 128
+        }
+      }
+    ]
+  },
+  "config_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\configs\\pilot.yaml",
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "torch": "2.14.1+cpu",
+    "cuda_available": false,
+    "cuda_device": null,
+    "packages": {
+      "accelerate": "1.15.0",
+      "certifi": "2026.10.23",
+      "charset-normalizer": "3.5.2",
+      "chronos-forecasting": "2.3.2",
+      "colorama": "0.4.6",
+      "contourpy": "1.4.0",
+      "cycler": "0.12.1",
+      "einops": "0.8.2",
+      "filelock": "4.2.4",
+      "fonttools": "4.67.0",
+      "fsspec": "2026.9.0",
+      "huggingface_hub": "0.36.2",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "inquirerpy": "0.3.4",
+      "Jinja2": "3.1.6",
+      "kiwisolver": "1.5.1",
+      "MarkupSafe": "3.0.4",
+      "matplotlib": "3.11.2",
+      "mpmath": "1.3.0",
+      "networkx": "3.7",
+      "numpy": "2.5.4",
+      "packaging": "26.3",
+      "pandas": "3.1.0",
+      "patsy": "1.0.3",
+      "pfzy": "0.3.4",
+      "pillow": "13.0.0",
+      "pluggy": "1.7.0",
+      "prompt_toolkit": "3.0.53",
+      "psutil": "7.2.2",
+      "pyarrow": "26.0.0",
+      "Pygments": "2.21.0",
+      "pyparsing": "3.3.3",
+      "pytest": "9.1.1",
+      "python-dateutil": "3.0.0",
+      "PyYAML": "6.0.3",
+      "regex": "2026.9.29",
+      "requests": "2.34.2",
+      "ruff": "0.17.2",
+      "safetensors": "0.8.0",
+      "scipy": "1.18.1",
+      "setuptools": "84.2.1",
+      "six": "1.17.0",
+      "statsmodels": "0.14.6",
+      "sympy": "1.14.0",
+      "timesfm": "2.0.2",
+      "time-series-hybrid": "0.1.0",
+      "tokenizers": "0.22.2",
+      "torch": "2.14.1",
+      "tqdm": "4.70.1",
+      "transformers": "4.57.6",
+      "truststore": "0.10.5",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "urllib3": "2.8.0",
+      "wcwidth": "0.9.4"
+    },
+    "git_commit": "7105faad07f8dd27993cd13add92bae735762dc3",
+    "source_sha256": "0533cf321dd78089c1e2a889cc2fc340ff8991810d76c9b03a2873eecb791f6c"
+  },
+  "datasets": [
+    {
+      "name": "ETTm1",
+      "path": "../data/ETTm1.npy",
+      "seasonality": 96,
+      "frequency": "15min",
+      "split": [
+        0.6,
+        0.2,
+        0.2
+      ],
+      "take_n": 57600,
+      "channels": [
+        0,
+        1
+      ],
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\ETTm1.npy",
+      "sha256": "f24e26905e8b3044fe68d7f197e59a028abb1f321d03a15036fc9bf29e6872ad",
+      "original_shape": [
+        69680,
+        7
+      ],
+      "used_shape": [
+        57600,
+        2
+      ],
+      "channel_names": [
+        "0",
+        "1"
+      ],
+      "train_end": 34560,
+      "val_end": 46080,
+      "test_end": 57600,
+      "mean": [
+        7.9900134819611495,
+        2.0387478002096975
+      ],
+      "scale": [
+        5.833092669188608,
+        2.0896456935496084
+      ],
+      "mase_scale": [
+        2.378098568463129,
+        0.8387358108467959
+      ]
+    },
+    {
+      "name": "Weather",
+      "path": "../data/weather.npy",
+      "seasonality": 144,
+      "frequency": "10min",
+      "split": [
+        0.7,
+        0.1,
+        0.2
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\weather.npy",
+      "sha256": "367174e32c3034180d79feb7b6670049e9874198271c70109dfd816eabbc2776",
+      "original_shape": [
+        52696,
+        21
+      ],
+      "used_shape": [
+        52696,
+        2
+      ],
+      "channel_names": [
+        "0",
+        "1"
+      ],
+      "train_end": 36887,
+      "val_end": 42157,
+      "test_end": 52696,
+      "mean": [
+        990.6424618429257,
+        11.978743188657251
+      ],
+      "scale": [
+        8.630709833546048,
+        7.718422186776981
+      ],
+      "mase_scale": [
+        4.590928340091991,
+        2.8768565441036387
+      ]
+    },
+    {
+      "name": "ECL",
+      "path": "../data/electricity.npy",
+      "seasonality": 24,
+      "frequency": "1h",
+      "split": [
+        0.7,
+        0.1,
+        0.2
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-hybrid\\data\\electricity.npy",
+      "sha256": "a41d4f56890ff90887c27eaafbd288a2f49eaa4725d90d969eadf8253a6b9806",
+      "original_shape": [
+        26304,
+        321
+      ],
+      "used_shape": [
+        26304,
+        2
+      ],
+      "channel_names": [
+        "0",
+        "1"
+      ],
+      "train_end": 18412,
+      "val_end": 21044,
+      "test_end": 26304,
+      "mean": [
+        25.08695416033022,
+        114.93004562242017
+      ],
+      "scale": [
+        24.64928204828357,
+        26.271692358854796
+      ],
+      "mase_scale": [
+        7.8453882967152495,
+        9.914509462693061
+      ]
+    }
+  ],
+  "models": [
+    {
+      "dataset": "ETTm1",
+      "model": "last_value",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 1.681646239862779
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "seasonal_naive",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 96,
+        "refit": "each context"
+      },
+      "validation_mse": 0.9951669578383107
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "ar",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.68773300580522
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.8223958473151085
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "ets",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 2.161628152102098
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "dlinear",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.5739240044308467
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.5645825822138436
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima_chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.7560715257750198
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "last_value",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 1.469238316520281
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "seasonal_naive",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 96,
+        "refit": "each context"
+      },
+      "validation_mse": 0.6984263136395596
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "ar",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.7521024117273027
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.7337575016309333
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "ets",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 7.484572602999633
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "dlinear",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.5122192174209541
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.49951862628183896
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "arima_chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.669135581285218
+    },
+    {
+      "dataset": "Weather",
+      "model": "last_value",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 0.1356626733665399
+    },
+    {
+      "dataset": "Weather",
+      "model": "seasonal_naive",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 144,
+        "refit": "each context"
+      },
+      "validation_mse": 0.1533711018817608
+    },
+    {
+      "dataset": "Weather",
+      "model": "ar",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.44253949226117556
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          1,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          1,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.12748940597319572
+    },
+    {
+      "dataset": "Weather",
+      "model": "ets",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 0.22797401296522546
+    },
+    {
+      "dataset": "Weather",
+      "model": "dlinear",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.12426442379392912
+    },
+    {
+      "dataset": "Weather",
+      "model": "chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.14939378170545714
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            1,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.12607094681175834
+    },
+    {
+      "dataset": "Weather",
+      "model": "last_value",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 0.26134264271074265
+    },
+    {
+      "dataset": "Weather",
+      "model": "seasonal_naive",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 144,
+        "refit": "each context"
+      },
+      "validation_mse": 0.14687908286278265
+    },
+    {
+      "dataset": "Weather",
+      "model": "ar",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.9126857906441227
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          1,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          1,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.2656154034239398
+    },
+    {
+      "dataset": "Weather",
+      "model": "ets",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 1.7507256877868913
+    },
+    {
+      "dataset": "Weather",
+      "model": "dlinear",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.14358941397140007
+    },
+    {
+      "dataset": "Weather",
+      "model": "chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.2346386451938521
+    },
+    {
+      "dataset": "Weather",
+      "model": "arima_chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            1,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.26477261072860364
+    },
+    {
+      "dataset": "ECL",
+      "model": "last_value",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 0.9327852623945088
+    },
+    {
+      "dataset": "ECL",
+      "model": "seasonal_naive",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 24,
+        "refit": "each context"
+      },
+      "validation_mse": 1.1046368380138505
+    },
+    {
+      "dataset": "ECL",
+      "model": "ar",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.5955797733020433
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.7054047427819907
+    },
+    {
+      "dataset": "ECL",
+      "model": "ets",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 1.0766183147217294
+    },
+    {
+      "dataset": "ECL",
+      "model": "dlinear",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.662383966488077
+    },
+    {
+      "dataset": "ECL",
+      "model": "chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.6273721783753329
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_chronos",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.7399148775046918
+    },
+    {
+      "dataset": "ECL",
+      "model": "last_value",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "point_forecast": "last observation",
+        "refit": "each context"
+      },
+      "validation_mse": 0.8372709019726385
+    },
+    {
+      "dataset": "ECL",
+      "model": "seasonal_naive",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {},
+      "metadata": {
+        "period": 24,
+        "refit": "each context"
+      },
+      "validation_mse": 0.7564481575119099
+    },
+    {
+      "dataset": "ECL",
+      "model": "ar",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "order": 16
+      },
+      "metadata": {
+        "order": 16,
+        "ridge": 1e-06,
+        "fit_prefix": 128,
+        "refit": "each context; coefficients frozen after fit_prefix if set"
+      },
+      "validation_mse": 0.6459916925286798
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "order": [
+          2,
+          0,
+          0
+        ]
+      },
+      "metadata": {
+        "order": [
+          2,
+          0,
+          0
+        ],
+        "fit_prefix": 128,
+        "maxiter": 100,
+        "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+      },
+      "validation_mse": 0.76048047403141
+    },
+    {
+      "dataset": "ECL",
+      "model": "ets",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "trend": "add"
+      },
+      "metadata": {
+        "trend": "add",
+        "seasonal": null,
+        "seasonal_periods": null,
+        "refit": "each context"
+      },
+      "validation_mse": 0.9417124236382245
+    },
+    {
+      "dataset": "ECL",
+      "model": "dlinear",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 5,
+        "batch_size": 64,
+        "lr": 0.0001,
+        "revin": true,
+        "train_limit": 1024
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 5,
+        "lr": 0.0001,
+        "batch_size": 64,
+        "train_stride": 1,
+        "train_limit": 1024,
+        "linear_only": false,
+        "device": "cpu",
+        "best_epoch": 4,
+        "training_windows": 1024
+      },
+      "validation_mse": 0.6247195272435508
+    },
+    {
+      "dataset": "ECL",
+      "model": "chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "batch_size": 16
+      },
+      "metadata": {
+        "family": "chronos",
+        "checkpoint": "amazon/chronos-bolt-tiny",
+        "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+        "device": "cpu",
+        "frozen": true,
+        "channel_mode": "independent",
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "point_forecast": "median (Chronos-Bolt API mean is the median)",
+        "native_horizon": 64,
+        "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+      },
+      "validation_mse": 0.44799676681006706
+    },
+    {
+      "dataset": "ECL",
+      "model": "arima_chronos",
+      "horizon": 96,
+      "seed": 0,
+      "selected_params": {
+        "warmup": 128
+      },
+      "metadata": {
+        "warmup": 128,
+        "base": {
+          "order": [
+            2,
+            0,
+            0
+          ],
+          "fit_prefix": 128,
+          "maxiter": 100,
+          "refit": "each context; fixed prefix parameters, updated state if fit_prefix set"
+        },
+        "residual": {
+          "family": "chronos",
+          "checkpoint": "amazon/chronos-bolt-tiny",
+          "requested_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "resolved_revision": "a0e552de83495b5c28c14c71c374f3e33280b340",
+          "device": "cpu",
+          "frozen": true,
+          "channel_mode": "independent",
+          "quantiles": [
+            0.1,
+            0.5,
+            0.9
+          ],
+          "point_forecast": "median (Chronos-Bolt API mean is the median)",
+          "native_horizon": 64,
+          "long_horizon_policy": "allow upstream autoregressive quantile rollout"
+        },
+        "interval_interpretation": "FM residual uncertainty conditional on base point forecast",
+        "history_policy": "residuals built entirely inside the same original context",
+        "point_forecast": "base + residual FM point"
+      },
+      "validation_mse": 0.6168125377516221
+    }
+  ],
+  "memory_note": "whole-process sampled RSS, includes cached FMs"
+}
