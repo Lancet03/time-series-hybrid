@@ -1,0 +1,43 @@
+extends: benchmark.yaml
+name: ARIMA + Chronos residual correction on ETTm1
+horizons:
+- 48
+- 96
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600
+models:
+- id: arima
+  type: arima
+  params:
+    fit_prefix: 128
+    maxiter: 100
+    workers: 4
+  candidates:
+  - order:
+    - 2
+    - 1
+    - 0
+  - order:
+    - 2
+    - 0
+    - 0
+- id: chronos
+  type: chronos
+  params:
+    checkpoint: amazon/chronos-bolt-tiny
+    revision: main
+    batch_size: 16
+- id: arima_chronos
+  type: hybrid
+  base: arima
+  residual: chronos
+  params:
+    warmup: 128

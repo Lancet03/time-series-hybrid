@@ -71,3 +71,70 @@ def test_training_history_is_readable_after_each_epoch(tmp_path):
     assert actual == expected
     assert events[-1]["completed"] == len(origins)
     assert events[-1]["percent"] == 100
+
+
+def test_open_progress_file_cannot_abort_updates(tmp_path):
+    reporter = RunProgress(tmp_path / "progress.json", 1, "cpu")
+    # On Windows a regular open reader prevents replacing the file. Progress
+    # must keep its in-memory state and retry later, without aborting the run.
+    with reporter.path.open(encoding="utf-8"):
+        reporter.begin({"model": "dlinear"}, 1, 1)
+        reporter.finish("completed")
+    reporter.write()
+    state = json.loads(reporter.path.read_text())
+    assert state["status"] == "completed"
+    assert state["task"]["model"] == "dlinear"
+
+
+def test_progress_retries_a_transient_windows_lock(tmp_path, monkeypatch):
+    from pathlib import Path
+    import tshybrid.progress as module
+    reporter = RunProgress(tmp_path / "progress.json", 1, "cpu")
+    replace = Path.replace
+    attempts = []
+
+    def transient(path, target):
+        attempts.append(1)
+        if len(attempts) <= 2:
+            raise PermissionError("Simulated WinError 5")
+        return replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", transient)
+    monkeypatch.setattr(module, "sleep", lambda seconds: None)
+    reporter.begin({"model": "dlinear"}, 1, 1)
+    assert len(attempts) == 3
+    assert json.loads(reporter.path.read_text())["task"]["model"] == "dlinear"
+
+
+def test_blocked_progress_file_cannot_abort_training(tmp_path, monkeypatch, capsys):
+    from pathlib import Path
+    import tshybrid.progress as module
+    np.save(tmp_path / "series.npy", np.random.default_rng(7).normal(size=(120, 2)))
+    data = load_dataset({"name": "test", "path": "series.npy", "seasonality": 2,
+                         "split": [.6, .2, .2]}, tmp_path)
+    origins = make_origins(data.train_end, data.val_end, 12, 4, limit=3)
+    reporter = RunProgress(tmp_path / "progress.json", 1, "cpu", total_epochs=2)
+    replace = Path.replace
+
+    def blocked(path, target):
+        raise PermissionError("Simulated persistent WinError 5")
+
+    monkeypatch.setattr(Path, "replace", blocked)
+    monkeypatch.setattr(module, "sleep", lambda seconds: None)
+    model = DLinearModel(12, 4, 2, epochs=2, batch_size=4, train_limit=8)
+    model.progress_callback = reporter.update
+    model.history_path = tmp_path / "training.csv"
+    reporter.begin({"model": "dlinear"}, 1, 1)
+    model.fit(data, origins, "common")
+    reporter.complete(True)
+    reporter.finish("completed")
+    assert reporter.state["completed_epochs"] == 2
+    assert reporter.state["snapshot_write_errors"] > 0
+    assert len(pd.read_csv(model.history_path)) == 2
+    assert capsys.readouterr().out.count("Progress snapshot temporarily unavailable") == 1
+    # The next successful snapshot includes all work done while the file was locked.
+    monkeypatch.setattr(Path, "replace", replace)
+    reporter.write()
+    state = json.loads(reporter.path.read_text())
+    assert state["status"] == "completed"
+    assert state["completed_epochs"] == 2

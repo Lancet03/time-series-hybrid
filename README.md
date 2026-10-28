@@ -79,6 +79,19 @@ DLinear 50, TSMixer 25, ModernTCN 15, PatchTST 10, iTransformer 25.
 окружении. `--datasets ETTm1` ограничивает датасет; `--models dlinear` — модель.
 Полная серия дорогая, особенно ARIMA с подгонкой на каждом окне и канале.
 
+Для десяти отдельных параллельных терминалов подготовлен генератор набора:
+
+```powershell
+$batch = "outputs/parallel-ETTm1-$(Get-Date -Format yyyyMMdd-HHmmss)"
+.\.venv\Scripts\python.exe -m tshybrid.parallel prepare --dataset ETTm1 --output $batch
+powershell -NoProfile -ExecutionPolicy Bypass -File "$batch/Start-All.ps1"
+```
+
+Каждая модель получает свой конфиг, лог и статус. Все результаты затем собираются
+командой `Combine.ps1 -Wait`. Настройки CPU/GPU, проверка состояния и перезапуск
+описаны в [PARALLEL_RUNS.md](docs/PARALLEL_RUNS.md). На одной видеокарте задачи
+конкурируют за память; параллельные замеры времени нельзя сравнивать с отдельными.
+
 Другие полные конфиги:
 
 | Конфиг | Назначение |

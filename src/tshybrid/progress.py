@@ -2,7 +2,7 @@
 from datetime import datetime, timezone
 import json
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, sleep
 
 
 def duration(seconds):
@@ -12,6 +12,7 @@ def duration(seconds):
     hours, rest = divmod(seconds, 3600)
     minutes, seconds = divmod(rest, 60)
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 
 
 class Progress:
@@ -42,6 +43,7 @@ class RunProgress:
     def __init__(self, path, total_tasks, device, total_epochs=0):
         self.path = Path(path)
         self.started = perf_counter()
+        self._warned = False
         self.state = {"status": "running", "device": device, "completed_tasks": 0,
                       "failed_tasks": 0, "total_tasks": total_tasks,
                       "completed_epochs": 0, "total_epochs": total_epochs}
@@ -51,8 +53,25 @@ class RunProgress:
         self.state["updated_at"] = datetime.now(timezone.utc).isoformat()
         self.state["elapsed_seconds"] = perf_counter() - self.started
         temporary = self.path.with_suffix(".tmp")
-        temporary.write_text(json.dumps(self.state, indent=2, ensure_ascii=False), encoding="utf-8")
-        temporary.replace(self.path)
+        try:
+            temporary.write_text(json.dumps(self.state, indent=2, ensure_ascii=False), encoding="utf-8")
+            for attempt in range(5):
+                try:
+                    temporary.replace(self.path)
+                    return
+                except PermissionError:
+                    if attempt == 4:
+                        raise
+                    sleep(0.02)
+        except OSError as error:
+            # Telemetry is best-effort. A reader, antivirus or unavailable progress
+            # path must never abort model fitting, evaluation or finalization.
+            self.state["snapshot_write_errors"] = self.state.get("snapshot_write_errors", 0) + 1
+            self.state["last_snapshot_error"] = str(error)
+            if not self._warned:
+                print("    Progress snapshot temporarily unavailable; computation continues. "
+                      "Console and training history remain active.", flush=True)
+                self._warned = True
 
     def begin(self, task, number, candidates):
         self.state.update(task=task, task_number=number, candidates=candidates, candidate=0,
