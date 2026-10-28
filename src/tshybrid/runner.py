@@ -25,6 +25,7 @@ from .evaluation import evaluate
 from .models.neural import seed_everything
 from .models.registry import FOUNDATION_MODELS, MODEL_TYPES, NEURAL_ADAPTERS, NEURAL_MODELS, STATISTICAL_MODELS
 from .reporting import build_report
+from .progress import RunProgress
 
 
 def write_json(path, value):
@@ -212,6 +213,18 @@ def run(config_path, model_ids=None, dataset_names=None):
     write_json(run_dir / "manifest.json", manifest)
     (run_dir / "resolved.yaml").write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     print(f"Run directory: {run_dir}", flush=True)
+    total_tasks = len(config["datasets"]) * len(config["horizons"]) * sum(
+        len(spec.get("seeds", [0])) for spec in config["models"])
+    total_epochs = len(config["datasets"]) * len(config["horizons"]) * sum(
+        len(spec.get("seeds", [0])) * sum(
+            overrides.get("epochs", spec.get("params", {}).get("epochs", NEURAL_MODELS[spec["type"]][2]))
+            for overrides in spec.get("candidates", [{}]))
+        for spec in config["models"] if spec["type"] in NEURAL_MODELS)
+    progress = RunProgress(run_dir / "progress.json", total_tasks, device, total_epochs)
+    print(f"Device: {device}; PyTorch: {torch.__version__}; tasks: {total_tasks}", flush=True)
+    print(f"Planned neural epochs: {total_epochs}", flush=True)
+    print(f"Live progress: {run_dir / 'progress.json'}", flush=True)
+    task_number = 0
     all_metrics, selections, failures, cache = [], [], [], {}
     try:
         for dataset_spec in config["datasets"]:
@@ -229,7 +242,10 @@ def run(config_path, model_ids=None, dataset_names=None):
                         label = f"{data.name}-{spec['id']}-H{horizon}-s{seed}"
                         task_dir = run_dir / label
                         task_dir.mkdir()
-                        print(f"  {label}", flush=True)
+                        task_number += 1
+                        progress.begin(task, task_number, len(spec.get("candidates", [{}])))
+                        print(f"  [Task {task_number}/{total_tasks}] {label}", flush=True)
+                        task_success = False
                         try:
                             with PeakMemory() as memory:
                                 seed_everything(seed)
@@ -237,12 +253,16 @@ def run(config_path, model_ids=None, dataset_names=None):
                                 best, best_score, best_params, best_timing = None, float("inf"), None, {}
                                 for candidate, overrides in enumerate(spec.get("candidates", [{}])):
                                     try:
+                                        progress.candidate(candidate + 1)
                                         params = {**spec.get("params", {}), **overrides}
                                         seed_everything(seed)
                                         initialization_start = perf_counter()
                                         model = make_model(spec, params, data, context, horizon, seed, device,
                                                            str((root / config.get("cache", "../.cache/huggingface")).resolve()),
                                                            cache, selected)
+                                        if hasattr(model, "history"):
+                                            model.progress_callback = progress.update
+                                            model.history_path = task_dir / f"training-{candidate}.csv"
                                         initialization_seconds = perf_counter() - initialization_start
                                         if spec["type"] in {"chronos", "timesfm", "moirai"}:
                                             # Initialization and cache hits must not change the sampling RNG.
@@ -252,12 +272,20 @@ def run(config_path, model_ids=None, dataset_names=None):
                                         fit_seconds = perf_counter() - fit_start
                                         validation_start = perf_counter()
                                         val_metrics, _, _ = evaluate(model, data, val_origins, context, horizon,
-                                                                     evaluation.get("batch_size", 16), legacy)
+                                                                     evaluation.get("batch_size", 16), legacy,
+                                                                     progress_label=f"validation candidate {candidate+1} windows",
+                                                                     progress_callback=progress.update)
                                         timing = {"model_init_seconds": initialization_seconds,
                                                   "fit_seconds": fit_seconds,
                                                   "validation_seconds": perf_counter() - validation_start}
                                         selections.append({**task, "candidate": candidate, "params": params,
                                                            "validation": val_metrics, **timing})
+                                        if hasattr(model, "warning_counts"):
+                                            selections[-1]["diagnostics"] = {
+                                                "warning_counts": dict(model.warning_counts),
+                                                "nonconverged_fits": model.nonconverged_fits,
+                                                "fit_calls": model.metadata["fit_calls"],
+                                            }
                                         if hasattr(model, "history"):
                                             pd.DataFrame(model.history).to_csv(task_dir / f"training-{candidate}.csv", index=False)
                                         if val_metrics["mse"] < best_score:
@@ -276,7 +304,8 @@ def run(config_path, model_ids=None, dataset_names=None):
                                 seed_everything(seed + 1000)
                                 scores, leads, predict_seconds = evaluate(
                                     best, data, test_origins, context, horizon,
-                                    evaluation.get("batch_size", 16), legacy, task_dir / "predictions.parquet")
+                                    evaluation.get("batch_size", 16), legacy, task_dir / "predictions.parquet",
+                                    progress_label="test windows", progress_callback=progress.update)
                                 leads.to_csv(task_dir / "by_lead.csv", index=False)
                                 np.savez(task_dir / "origins.npz", validation=val_origins, test=test_origins)
                                 if hasattr(best, "net"):
@@ -300,14 +329,17 @@ def run(config_path, model_ids=None, dataset_names=None):
                                       **{k: best_params[k] for k in ("epochs", "lr", "batch_size", "revin") if k in best_params},
                                       "arima_nonconverged_fits": getattr(best, "nonconverged_fits", 0)}
                             all_metrics.append(record)
-                            model_manifest = {**task, "selected_params": best_params, "metadata": best.metadata,
+                            model_manifest = {**task, "selected_params": best_params,
+                                              "metadata": copy.deepcopy(best.metadata),
                                               "validation_mse": best_score}
                             manifest["models"].append(model_manifest)
                             write_json(task_dir / "model.json", model_manifest)
                             print(f"    test MSE={scores['mse']:.6f} MAE={scores['mae']:.6f} MASE={scores['mase']:.6f}", flush=True)
+                            task_success = True
                         except Exception as error:
                             failures.append({**task, "error": str(error), "traceback": traceback.format_exc()})
                             print(f"    FAILED: {error}", flush=True)
+                        progress.complete(task_success)
                         pd.DataFrame(all_metrics).to_csv(run_dir / "metrics.csv", index=False)
                         write_json(run_dir / "selection.json", selections)
                         write_json(run_dir / "failures.json", failures)
@@ -323,6 +355,7 @@ def run(config_path, model_ids=None, dataset_names=None):
         write_json(run_dir / "failures.json", failures)
         write_json(run_dir / "selection.json", selections)
         write_json(run_dir / "manifest.json", manifest)
+        progress.finish(manifest["status"])
         build_report(run_dir)
         print(f"Report: {run_dir / 'report.html'}", flush=True)
     return run_dir, not failures

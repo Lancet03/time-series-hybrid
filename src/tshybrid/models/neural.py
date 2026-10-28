@@ -1,5 +1,7 @@
 """Shared trainer for the copied HN-MVTS networks on lazy multichannel windows."""
 import random
+import csv
+from time import perf_counter
 
 import numpy as np
 import torch
@@ -8,6 +10,7 @@ from torch.utils.data import DataLoader
 
 from ..data import Windows, make_origins
 from .base import Forecast, Model
+from ..progress import Progress, duration
 
 
 def seed_everything(seed):
@@ -46,13 +49,17 @@ class NeuralModel(Model):
         self.net = net.to(device)
         self.architecture = architecture
         self.context, self.horizon, self.device = context, horizon, device
+        self.pin_memory = torch.device(device).type == "cuda"
         self.epochs, self.batch_size, self.lr = epochs, batch_size, lr
         self.train_stride, self.train_limit = train_stride, train_limit
         self.history = []
+        self.progress_callback = None
+        self.history_path = None
         self.metadata = {"point_forecast": "MSE-trained output", "revin": revin,
                          "epochs": epochs, "lr": lr, "batch_size": batch_size,
                          "train_stride": train_stride, "train_limit": train_limit,
                          "device": device,
+                         "pin_memory": self.pin_memory, "non_blocking_transfer": self.pin_memory,
                          "architecture": architecture, "model_params": params,
                          "network_class": f"{type(net).__module__}.{type(net).__name__}",
                          "parameter_count": sum(p.numel() for p in net.parameters()),
@@ -64,38 +71,74 @@ class NeuralModel(Model):
         train_origins = make_origins(self.context, data.train_end, self.context, self.horizon,
                                     self.train_stride, self.train_limit)
         train = DataLoader(Windows(data.values, train_origins, self.context, self.horizon),
-                           batch_size=self.batch_size, shuffle=True, num_workers=0)
+                           batch_size=self.batch_size, shuffle=True, num_workers=0,
+                           pin_memory=self.pin_memory)
         val = DataLoader(Windows(data.values, val_origins, self.context, self.horizon),
-                         batch_size=self.batch_size, shuffle=protocol == "hn_mvts_code", num_workers=0)
+                         batch_size=self.batch_size, shuffle=protocol == "hn_mvts_code", num_workers=0,
+                         pin_memory=self.pin_memory)
         optimizer = torch.optim.Adam(self.net.parameters(), lr=self.lr)
         best_score, best_state = float("inf"), None
+        fit_started = perf_counter()
         for epoch in range(self.epochs):
+            epoch_started = perf_counter()
+            context = {"epoch": epoch + 1, "epochs": self.epochs}
+            progress = Progress(len(train), f"epoch {epoch+1}/{self.epochs} train batches",
+                                self.progress_callback, **context)
             self.net.train()
-            total, count = 0.0, 0
-            for x, y in train:
-                x, y = x.to(self.device), y.to(self.device)
+            total, count = torch.zeros((), dtype=torch.float64, device=self.device), 0
+            for batch_number, (x, y) in enumerate(train, 1):
+                x = x.to(self.device, non_blocking=self.pin_memory)
+                y = y.to(self.device, non_blocking=self.pin_memory)
                 loss = nn.functional.mse_loss(self.net(x), y)
                 loss.backward()
                 optimizer.step()
                 optimizer.zero_grad()
-                total += loss.item() * y.numel()
+                # Keep logging accumulators on device; .item() on every batch
+                # synchronizes CUDA and prevents CPU/GPU overlap.
+                total += loss.detach().to(torch.float64) * y.numel()
                 count += y.numel()
+                progress.update(batch_number)
             self.net.eval()
-            error_sum, val_count = 0.0, 0
+            error_sum = torch.zeros((), dtype=torch.float64, device=self.device)
+            val_count = 0
+            progress = Progress(len(val), f"epoch {epoch+1}/{self.epochs} validation batches",
+                                self.progress_callback, **context)
             with torch.inference_mode():
-                for x, y in val:
-                    x, y = x.to(self.device), y.to(self.device)
-                    loss = nn.functional.mse_loss(self.net(x), y).item()
+                for batch_number, (x, y) in enumerate(val, 1):
+                    x = x.to(self.device, non_blocking=self.pin_memory)
+                    y = y.to(self.device, non_blocking=self.pin_memory)
+                    loss = nn.functional.mse_loss(self.net(x), y)
                     weight = 1 if protocol == "hn_mvts_code" else y.numel()
-                    error_sum += loss * weight
+                    error_sum += loss.to(torch.float64) * weight
                     val_count += weight
-            score = error_sum / val_count
-            self.history.append({"epoch": epoch, "mse_train": total/count, "mse_val": score})
+                    progress.update(batch_number)
+            total = total.item()
+            score = error_sum.item() / val_count
+            epoch_seconds = perf_counter() - epoch_started
+            elapsed = perf_counter() - fit_started
+            eta = elapsed / (epoch + 1) * (self.epochs - epoch - 1)
+            row = {"epoch": epoch, "mse_train": total/count, "mse_val": score,
+                   "epoch_seconds": epoch_seconds, "elapsed_seconds": elapsed, "eta_seconds": eta}
+            self.history.append(row)
+            if self.history_path is not None:
+                with self.history_path.open("w" if epoch == 0 else "a", newline="", encoding="utf-8") as stream:
+                    writer = csv.DictWriter(stream, fieldnames=list(row))
+                    if epoch == 0:
+                        writer.writeheader()
+                    writer.writerow(row)
             if score < best_score:
                 best_score = score
                 best_state = {k: v.detach().cpu().clone() for k, v in self.net.state_dict().items()}
                 self.metadata["best_epoch"] = epoch
-            print(f"    epoch {epoch+1}/{self.epochs}: train={total/count:.6f} val={score:.6f}", flush=True)
+            print(f"    epoch {epoch+1}/{self.epochs}: train={total/count:.6f} val={score:.6f}"
+                  f" | epoch time={duration(epoch_seconds)} | fit ETA={duration(eta)}"
+                  f" | best epoch={self.metadata.get('best_epoch', 0)+1}", flush=True)
+            if self.progress_callback:
+                self.progress_callback({**context, "stage": "epoch completed", "completed": epoch+1,
+                                        "total": self.epochs, "elapsed_seconds": elapsed,
+                                        "eta_seconds": eta, "epoch_seconds": epoch_seconds,
+                                        "mse_train": total/count, "mse_val": score,
+                                        "best_epoch": self.metadata.get("best_epoch", 0)+1})
             if protocol == "hn_mvts_code":
                 # The original evaluates test each epoch. Creating an iterator consumes
                 # a torch RNG base_seed even without shuffling. Preserve RNG progression

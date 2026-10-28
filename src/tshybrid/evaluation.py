@@ -8,6 +8,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .data import Windows
+from .progress import Progress
 
 
 class Scores:
@@ -83,10 +84,12 @@ def prediction_frame(data, origins, truth, forecast):
     return frame
 
 
-def evaluate(model, data, origins, context, horizon, batch_size=16, legacy=False, output=None):
+def evaluate(model, data, origins, context, horizon, batch_size=16, legacy=False, output=None,
+             progress_label=None, progress_callback=None):
     windows = Windows(data.values, origins, context, horizon)
     scores, writer = Scores(horizon), None
     prediction_seconds = 0.0
+    progress = Progress(len(windows), progress_label, progress_callback) if progress_label else None
     try:
         for start in range(0, len(windows), batch_size):
             batch = [windows[i] for i in range(start, min(start+batch_size, len(windows)))]
@@ -105,6 +108,8 @@ def evaluate(model, data, origins, context, horizon, batch_size=16, legacy=False
                     frame[(frame.origin == origins[0]) & (frame.channel == data.channels[0])].to_csv(
                         Path(output).with_suffix(".example.csv"), index=False)
                 writer.write_table(table)
+            if progress:
+                progress.update(start + len(batch))
     finally:
         if writer is not None:
             writer.close()

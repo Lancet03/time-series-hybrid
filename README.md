@@ -28,7 +28,7 @@ runner пока не выбираются. Гибриды реализованы
 
 ## Установка и данные
 
-Проверен Python 3.12, Windows и CPU. Из каталога проекта, PowerShell:
+Проверен Python 3.12, Windows, CPU и CUDA на RTX 5070. Из каталога проекта, PowerShell:
 
 ```powershell
 uv venv .venv --python 3.12
@@ -41,6 +41,11 @@ uv pip install --python .venv-moirai/Scripts/python.exe -e ".[moirai]"
 У Moirai отдельное окружение из-за ограничений версий зависимостей Uni2TS.
 Для CUDA нужна соответствующая сборка PyTorch. Восстановление проверенных версий
 описано в [RUN_GUIDE.md](RUN_GUIDE.md).
+
+В текущем `.venv` установлен `torch 2.14.1+cu130`: `device: auto` выбирает GPU
+для нейронных и фундаментальных моделей. В `benchmark.yaml` ARIMA использует
+4 CPU-процесса. Окружение Moirai остаётся на CPU из-за ограничения Uni2TS `torch<2.5`.
+Измерения и настройки ускорения: [PERFORMANCE.md](docs/PERFORMANCE.md).
 
 Поместите `ETTm1.npy`, `weather.npy`, `electricity.npy` в `data/`.
 Формат NPY: числовая матрица `[time, channels]`. Можно скопировать их из любой
@@ -90,6 +95,11 @@ DLinear 50, TSMixer 25, ModernTCN 15, PatchTST 10, iTransformer 25.
 Каждый запуск печатает `outputs/<run-id>/report.html`. Там сохраняются метрики,
 прогнозы Parquet, составляющие гибрида, лучшая validation-модель, история обучения,
 выбранные параметры, ошибки, снимок кода и сведения об окружении.
+
+В процессе видны номер задачи, модель/H/seed, эпоха, время эпохи и ETA текущего
+этапа. Для ARIMA и FM прогресс показывается по окнам. Живое состояние сохраняется
+в `progress.json`, история обучения — в `training-*.csv` после каждой эпохи.
+Для полного ETTm1 сети выполняют 50 обучений, всего 1250 эпох.
 
 ```powershell
 .\.venv\Scripts\python.exe -m tshybrid combine outputs/<core-id> outputs/<moirai-id> --output outputs/combined

@@ -53,6 +53,7 @@ models:
   params:
     fit_prefix: 128
     maxiter: 100
+    workers: 4
   candidates:
   - order:
     - 2
@@ -169,6 +170,7 @@ models:
   params:
     fit_prefix: 128
     maxiter: 100
+    workers: 4
     initialization: approximate_diffuse
   candidates:
   - order: [2, 1, 0]

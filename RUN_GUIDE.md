@@ -25,6 +25,25 @@ uv pip install --python .venv-moirai/Scripts/python.exe --no-deps -e .
 выбирает `cuda:0` при доступности CUDA; допустимы также `cpu` и `cuda:0`.
 CPU-потоки задаются параметром `threads`. Moirai использует собственное окружение.
 
+В текущем основном окружении проверена CUDA-сборка PyTorch той же версии:
+
+```powershell
+uv pip install --python .venv/Scripts/python.exe --reinstall-package torch "torch==2.14.1" --index-url https://download.pytorch.org/whl/cu130
+.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+```
+
+Сохранённый core lock описывает CPU-окружение; CUDA устанавливается отдельным
+шагом выше. В `.venv-moirai` сохранён PyTorch 2.4.1 CPU: Uni2TS ограничивает
+версию `torch<2.5`, поэтому эту команду в окружении Moirai применять не следует.
+Оптимизации доступны новым запускам; уже работающий процесс их не подхватывает.
+
+У ARIMA параметр `params.workers` задаёт число независимых CPU-процессов:
+в `benchmark.yaml` установлено 4. При `workers: 1` используется последовательный
+режим. `threads` управляет потоками PyTorch, а не количеством подгонок ARIMA.
+Повторяющиеся предупреждения подгонки записываются в `metadata.warning_counts`
+файла `model.json`, а не печатаются для каждого окна. Счётчик несходимости сохранён.
+Подробные замеры: [PERFORMANCE.md](docs/PERFORMANCE.md).
+
 ## Данные
 
 Полный benchmark ожидает `data/ETTm1.npy`, `data/weather.npy`, `data/electricity.npy`.
@@ -106,6 +125,34 @@ TimesFM 2.5 200M и Moirai 1.1 small. Кэш: `.cache/huggingface/`.
 - `<task>/best.pt`, `training-*.csv` — лучшая validation-модель и история обучения.
 
 Неполный запуск возвращает exit code 1. Наличие HTML само по себе не означает успех.
+
+## Прогресс во время работы
+
+При запуске печатаются выбранное устройство, число задач, запланированное число
+нейронных эпох и путь `progress.json`. Для одного полного ETTm1 с девятью моделями
+основного окружения это 58 задач и 1250 эпох: 50 обучений сетей и восемь задач
+AR/ARIMA/Chronos/TimesFM на двух горизонтах. Moirai — ещё две задачи в своём окружении.
+
+В начале каждой задачи видны номер задачи, датасет, модель, горизонт и seed.
+При обучении печатаются номер эпохи, train/validation loss, время эпохи,
+лучшая эпоха и ETA оставшегося обучения текущей модели. Между эпохами
+отображается прогресс train/validation батчей. Для ARIMA и FM — число обработанных
+окон, процент и ETA текущего validation/test этапа. Обновления идут примерно
+раз в 10 секунд и обязательно при завершении этапа. Сам один батч может занять
+дольше этого интервала. ETA уточняется по текущей скорости, это не обещание срока.
+
+`training-<candidate>.csv` дописывается после каждой эпохи. Колонка `epoch`
+начинается с нуля; в консоли и `progress.json` номера эпох начинаются с единицы.
+Файл `progress.json` содержит текущую задачу/кандидата, текущую эпоху, общий счётчик
+`completed_epochs` / `total_epochs`, выполненные задачи, состояние и время работы.
+Посмотреть его из другого терминала:
+
+```powershell
+Get-Content .\outputs\<run-id>\progress.json -Raw
+```
+
+ETA относится к указанному этапу или текущему обучению, а не ко всем оставшимся
+моделям. Начальная оценка полного ETTm1 приведена в [PERFORMANCE.md](docs/PERFORMANCE.md).
 
 ```powershell
 .\.venv\Scripts\python.exe -m tshybrid report outputs/<run-id>
