@@ -5,6 +5,11 @@
 собраны отдельно в [RUN_GUIDE.md](RUN_GUIDE.md). Научная постановка и оставшаяся
 работа разобраны в [SUPERVISOR_TASK_REVIEW.md](SUPERVISOR_TASK_REVIEW.md).
 
+Дополнение от **28 октября 2026**: пять нейронных baseline реализованы в собственных
+модулях проекта и подключены к runner, без импортов HN-MVTS. Их архитектуры
+соответствуют Base-вариантам эталона; старые отчёты относятся к прежним запускам. Команды ноутбучного
+запуска находятся в начале [RUN_GUIDE.md](RUN_GUIDE.md).
+
 ## 1. Назначение
 
 `time-series-hybrid` — исследовательский Python-проект для проверки схемы:
@@ -50,7 +55,10 @@ DLinear и FM можно оценивать по одним targets, сохра�
 | [src/tshybrid/data.py](src/tshybrid/data.py) | Данные, нормализация, origins, ленивые окна |
 | [src/tshybrid/models/base.py](src/tshybrid/models/base.py) | Контракт `Model`/`Forecast` |
 | [src/tshybrid/models/statistical.py](src/tshybrid/models/statistical.py) | LastValue, SeasonalNaive, AR, ARIMA, ETS |
-| [src/tshybrid/models/neural.py](src/tshybrid/models/neural.py) | Linear/DLinear, RevIN и обучение |
+| [src/tshybrid/models/neural.py](src/tshybrid/models/neural.py) | Обучение пяти нейронных моделей и Linear-контроль |
+| [src/tshybrid/models/networks.py](src/tshybrid/models/networks.py) | Собственные DLinear, TSMixer, PatchTST, iTransformer |
+| [src/tshybrid/models/moderntcn.py](src/tshybrid/models/moderntcn.py) | Собственная ModernTCN |
+| [src/tshybrid/models/layers.py](src/tshybrid/models/layers.py) | RevIN, разложение, MLP и патчи |
 | [src/tshybrid/models/foundation.py](src/tshybrid/models/foundation.py) | Адаптеры Chronos, TimesFM, Moirai |
 | [src/tshybrid/models/hybrid.py](src/tshybrid/models/hybrid.py) | Базовый прогноз плюс прогноз остатков |
 | [src/tshybrid/evaluation.py](src/tshybrid/evaluation.py) | Метрики, батчи оценки, запись прогнозов |
@@ -240,9 +248,16 @@ return np.asarray(fitted.forecast(horizon)), residuals
 используется аддитивный тренд без сезонной компоненты. Это конкретный baseline,
 а не автоматический перебор всего семейства ETS.
 
-## 9. Linear и DLinear
+## 9. Нейронные модели
 
-### 9.1. `DLinearNet.forward()`
+### 9.1. Локальные реализации
+
+`DLinearNet`, `TSMixerNet`, `PatchTSTNet`, `ITransformerNet` и `ModernTCNNet`
+определены в собственных модулях `models/`. `NeuralModel` создаёт и обучает их.
+Архитектуры соответствуют Base-вариантам HN-MVTS; forward, градиенты и
+инициализация сверяются с эталоном в необязательных тестах. Рабочий код от
+наличия HN-MVTS не зависит. ModernTCN сохраняет фиксированные две стадии
+шириной 32, включая неиспользуемые ветви для совместимости весов/инициализации.
 
 При включённом RevIN вход сначала нормализуется по текущему историческому окну.
 Это другая операция, чем train-only scaling датасета: RevIN не использует будущий target.
@@ -251,23 +266,27 @@ return np.asarray(fitted.forecast(horizon)), residuals
 Основной фрагмент DLinear:
 
 ```python
-padded = nn.functional.pad(x, ((self.kernel-1)//2, (self.kernel-1)//2), mode="replicate")
-trend = nn.functional.avg_pool1d(padded, self.kernel, stride=1)
-out = self.linear_season(x - trend) + self.linear_trend(trend)
+X = self.instance_norm(X.transpose(1, 2), "norm").transpose(1, 2)
+X_season, X_trend = self.stl(X)
+X = self.linear_season(X_season) + self.linear_trend(X_trend)
+X = self.instance_norm(X.transpose(1, 2), "denorm").transpose(1, 2)
 ```
 
 Тренд выделяется скользящим средним, остаточная компонента — вычитанием тренда.
 Два линейных слоя переводят context в horizon, результаты складываются.
-В используемых конфигах kernel=25. Слои общие для каналов; гиперсеть HN-MVTS здесь
-не реализована. Происхождение формул и лицензия описаны в [THIRD_PARTY.md](THIRD_PARTY.md).
+В используемых конфигах kernel=25. Слои DLinear общие для каналов.
+Hyper-варианты не реализованы.
+Происхождение исходников и лицензия описаны в [THIRD_PARTY.md](THIRD_PARTY.md).
 
-`linear=True` отключает разложение и оставляет один линейный прогноз. Фабрика
-включает этот режим для `type: linear`. Отдельный зафиксированный прогон Linear
+`type: linear` использует отдельный `LinearNet` с одной линейной проекцией и
+опциональным RevIN; это дополнительный контроль.
+Отдельный зафиксированный прогон Linear
 в текущих отчётах отсутствует; DLinear запускался.
 
 ### 9.2. Обучение
 
-`DLinear.fit()` создаёт ленивые train/validation loaders, оптимизатор Adam и MSE loss.
+`NeuralModel.fit()` (также у адаптера `DLinear`) создаёт ленивые train/validation loaders,
+оптимизатор Adam и MSE loss.
 Train перемешивается, лучшая эпоха выбирается по validation. При улучшении
 копируется `state_dict`, после завершения он восстанавливается. `best.pt` содержит
 веса этой эпохи. Test не используется для выбора checkpoint.

@@ -1,18 +1,18 @@
 {
   "ETTm1": {
-    "source": "C:\\workspace\\learning\\research\\HN-MVTS\\data\\datasets\\ETTm1.npy",
+    "source": "C:\\workspace\\learning\\research\\time-series-research\\HN-MVTS\\data\\ETTm1.npy",
     "file": "ETTm1.npy",
     "sha256": "f24e26905e8b3044fe68d7f197e59a028abb1f321d03a15036fc9bf29e6872ad",
     "provenance": "HN-MVTS author-provided NPY; preprocessing inherited, not independently verified"
   },
   "Weather": {
-    "source": "C:\\workspace\\learning\\research\\HN-MVTS\\data\\datasets\\weather.npy",
+    "source": "C:\\workspace\\learning\\research\\time-series-research\\HN-MVTS\\data\\weather.npy",
     "file": "weather.npy",
     "sha256": "367174e32c3034180d79feb7b6670049e9874198271c70109dfd816eabbc2776",
     "provenance": "HN-MVTS author-provided NPY; preprocessing inherited, not independently verified"
   },
   "ECL": {
-    "source": "C:\\workspace\\learning\\research\\HN-MVTS\\data\\datasets\\electricity.npy",
+    "source": "C:\\workspace\\learning\\research\\time-series-research\\HN-MVTS\\data\\electricity.npy",
     "file": "electricity.npy",
     "sha256": "a41d4f56890ff90887c27eaafbd288a2f49eaa4725d90d969eadf8253a6b9806",
     "provenance": "HN-MVTS author-provided NPY; preprocessing inherited, not independently verified"

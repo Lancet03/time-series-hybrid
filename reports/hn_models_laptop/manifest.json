@@ -1,0 +1,371 @@
+{
+  "name": "HN-MVTS Base networks laptop pilot",
+  "run_id": "20261028T112551Z-dd934c45",
+  "status": "completed",
+  "protocol": "common",
+  "config": {
+    "name": "HN-MVTS Base networks laptop pilot",
+    "purpose": "pilot",
+    "protocol": "common",
+    "context": 336,
+    "horizons": [
+      48
+    ],
+    "device": "cpu",
+    "threads": 4,
+    "output": "../outputs",
+    "evaluation": {
+      "batch_size": 16,
+      "val_stride": 1,
+      "test_stride": 1,
+      "val_limit": 16,
+      "test_limit": 16
+    },
+    "datasets": [
+      {
+        "name": "ETTm1",
+        "path": "../data/ETTm1.npy",
+        "seasonality": 96,
+        "frequency": "15min",
+        "split": [
+          0.6,
+          0.2,
+          0.2
+        ],
+        "take_n": 57600
+      }
+    ],
+    "models": [
+      {
+        "id": "dlinear",
+        "type": "dlinear",
+        "params": {
+          "epochs": 2,
+          "batch_size": 16,
+          "train_limit": 512
+        }
+      },
+      {
+        "id": "tsmixer",
+        "type": "tsmixer",
+        "params": {
+          "epochs": 2,
+          "batch_size": 16,
+          "train_limit": 512
+        }
+      },
+      {
+        "id": "moderntcn",
+        "type": "moderntcn",
+        "params": {
+          "epochs": 2,
+          "batch_size": 16,
+          "train_limit": 512
+        }
+      },
+      {
+        "id": "patchtst",
+        "type": "patchtst",
+        "params": {
+          "epochs": 2,
+          "batch_size": 16,
+          "train_limit": 512
+        }
+      },
+      {
+        "id": "itransformer",
+        "type": "itransformer",
+        "params": {
+          "epochs": 2,
+          "batch_size": 16,
+          "train_limit": 512
+        }
+      }
+    ]
+  },
+  "config_path": "C:\\workspace\\learning\\research\\time-series-research\\time-series-hybrid\\configs\\hn_models_laptop.yaml",
+  "environment": {
+    "python": "3.12.15",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "torch": "2.14.1+cpu",
+    "cuda_available": false,
+    "cuda_device": null,
+    "packages": {
+      "certifi": "2026.10.23",
+      "charset-normalizer": "3.5.2",
+      "colorama": "0.4.6",
+      "filelock": "4.2.4",
+      "fsspec": "2026.9.0",
+      "huggingface_hub": "0.36.2",
+      "idna": "3.20",
+      "iniconfig": "2.3.1",
+      "Jinja2": "3.1.6",
+      "MarkupSafe": "3.0.4",
+      "mpmath": "1.3.0",
+      "networkx": "3.7",
+      "numpy": "2.5.4",
+      "packaging": "26.3",
+      "pandas": "3.1.0",
+      "patsy": "1.0.3",
+      "pluggy": "1.7.0",
+      "psutil": "7.2.2",
+      "pyarrow": "26.0.0",
+      "Pygments": "2.21.0",
+      "pytest": "9.1.1",
+      "python-dateutil": "3.0.0",
+      "PyYAML": "6.0.3",
+      "requests": "2.34.2",
+      "ruff": "0.17.2",
+      "scipy": "1.18.1",
+      "setuptools": "84.2.1",
+      "six": "1.17.0",
+      "statsmodels": "0.14.6",
+      "sympy": "1.14.0",
+      "time-series-hybrid": "0.1.0",
+      "torch": "2.14.1",
+      "tqdm": "4.70.1",
+      "typing_extensions": "4.16.0",
+      "tzdata": "2026.5",
+      "urllib3": "2.8.0"
+    },
+    "git_commit": "252b2773c8b969a05d9bb4cce6ecd880b2aacd44",
+    "source_sha256": "f50dd0a10ba2cd7e6cae5d6117b633a4e3ca2c51e514bb87bb181bf32c5e4974"
+  },
+  "datasets": [
+    {
+      "name": "ETTm1",
+      "path": "../data/ETTm1.npy",
+      "seasonality": 96,
+      "frequency": "15min",
+      "split": [
+        0.6,
+        0.2,
+        0.2
+      ],
+      "take_n": 57600,
+      "resolved_path": "C:\\workspace\\learning\\research\\time-series-research\\time-series-hybrid\\data\\ETTm1.npy",
+      "sha256": "f24e26905e8b3044fe68d7f197e59a028abb1f321d03a15036fc9bf29e6872ad",
+      "original_shape": [
+        69680,
+        7
+      ],
+      "used_shape": [
+        57600,
+        7
+      ],
+      "channel_names": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "train_end": 34560,
+      "val_end": 46080,
+      "test_end": 57600,
+      "mean": [
+        7.9900134819611495,
+        2.0387478002096975,
+        5.109928063464273,
+        0.7562241616995178,
+        2.80470208448802,
+        0.7911860229808587,
+        17.12495024489946
+      ],
+      "scale": [
+        5.833092669188608,
+        2.0896456935496084,
+        5.519042716237789,
+        1.9241610579070023,
+        1.0405540563014364,
+        0.632442061366721,
+        9.173035273908697
+      ],
+      "mase_scale": [
+        2.378098568463129,
+        0.8387358108467959,
+        2.0615751846771717,
+        0.706912081950658,
+        0.7677600413354195,
+        0.2584931813415007,
+        2.5596855833534993
+      ]
+    }
+  ],
+  "models": [
+    {
+      "dataset": "ETTm1",
+      "model": "dlinear",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 2,
+        "batch_size": 16,
+        "train_limit": 512
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 2,
+        "lr": 0.0001,
+        "batch_size": 16,
+        "train_stride": 1,
+        "train_limit": 512,
+        "linear_only": false,
+        "device": "cpu",
+        "architecture": "dlinear",
+        "model_params": {
+          "kernel_size": 25
+        },
+        "network_class": "tshybrid.vendor.hn_mvts.models.dlinear.DLinear",
+        "parameter_count": 32366,
+        "implementation": "HN-MVTS Base (bundled source)",
+        "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+        "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+        "best_epoch": 1,
+        "training_windows": 512
+      },
+      "validation_mse": 0.5220665618512763
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "tsmixer",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 2,
+        "batch_size": 16,
+        "train_limit": 512
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 2,
+        "lr": 0.0001,
+        "batch_size": 16,
+        "train_stride": 1,
+        "train_limit": 512,
+        "linear_only": false,
+        "device": "cpu",
+        "architecture": "tsmixer",
+        "model_params": {
+          "d_hidden_temporal": 128,
+          "d_hidden_channel": 24
+        },
+        "network_class": "tshybrid.vendor.hn_mvts.models.tsmixer.TSMixer",
+        "parameter_count": 191256,
+        "implementation": "HN-MVTS Base (bundled source)",
+        "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+        "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+        "best_epoch": 1,
+        "training_windows": 512
+      },
+      "validation_mse": 0.48190445990111946
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "moderntcn",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 2,
+        "batch_size": 16,
+        "train_limit": 512
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 2,
+        "lr": 0.0001,
+        "batch_size": 16,
+        "train_stride": 1,
+        "train_limit": 512,
+        "linear_only": false,
+        "device": "cpu",
+        "architecture": "moderntcn",
+        "model_params": {
+          "d_hidden": 256
+        },
+        "network_class": "tshybrid.vendor.hn_mvts.models.moderntcn.ModernTCN",
+        "parameter_count": 246270,
+        "implementation": "HN-MVTS Base (bundled source)",
+        "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+        "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+        "best_epoch": 1,
+        "training_windows": 512
+      },
+      "validation_mse": 0.40304355727118757
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "patchtst",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 2,
+        "batch_size": 16,
+        "train_limit": 512
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 2,
+        "lr": 0.0002,
+        "batch_size": 16,
+        "train_stride": 1,
+        "train_limit": 512,
+        "linear_only": false,
+        "device": "cpu",
+        "architecture": "patchtst",
+        "model_params": {
+          "d_hidden": 32
+        },
+        "network_class": "tshybrid.vendor.hn_mvts.models.patchtst.PatchTST",
+        "parameter_count": 90526,
+        "implementation": "HN-MVTS Base (bundled source)",
+        "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+        "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+        "best_epoch": 1,
+        "training_windows": 512
+      },
+      "validation_mse": 0.3777419628667276
+    },
+    {
+      "dataset": "ETTm1",
+      "model": "itransformer",
+      "horizon": 48,
+      "seed": 0,
+      "selected_params": {
+        "epochs": 2,
+        "batch_size": 16,
+        "train_limit": 512
+      },
+      "metadata": {
+        "point_forecast": "MSE-trained output",
+        "revin": true,
+        "epochs": 2,
+        "lr": 0.0002,
+        "batch_size": 16,
+        "train_stride": 1,
+        "train_limit": 512,
+        "linear_only": false,
+        "device": "cpu",
+        "architecture": "itransformer",
+        "model_params": {
+          "d_hidden": 256
+        },
+        "network_class": "tshybrid.vendor.hn_mvts.models.itransformer.InverseTransformer",
+        "parameter_count": 1152830,
+        "implementation": "HN-MVTS Base (bundled source)",
+        "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+        "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+        "best_epoch": 1,
+        "training_windows": 512
+      },
+      "validation_mse": 0.3187094569447572
+    }
+  ],
+  "memory_note": "whole-process sampled RSS, includes cached FMs"
+}

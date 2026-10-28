@@ -1,8 +1,4 @@
-"""DLinear with optional affine RevIN, trained on lazy multichannel windows.
-
-The decomposition/RevIN equations follow HN-MVTS (Apache-2.0); see THIRD_PARTY.md.
-This is a separate implementation; source parity is checked by a numerical test.
-"""
+"""Train the project's own neural baselines on lazy multichannel windows."""
 import random
 
 import numpy as np
@@ -12,36 +8,34 @@ from torch.utils.data import DataLoader
 
 from ..data import Windows, make_origins
 from .base import Forecast, Model
+from .layers import RevIN
+from .moderntcn import ModernTCNNet
+from .networks import DLinearNet, ITransformerNet, PatchTSTNet, TSMixerNet
 
 
-class DLinearNet(nn.Module):
-    def __init__(self, context, horizon, channels, revin=True, kernel=25, linear=False):
+NEURAL_MODELS = {
+    "dlinear": (DLinearNet, {}, 50, 1e-4),
+    "tsmixer": (TSMixerNet, {"d_hidden_temporal": 128, "d_hidden_channel": 24}, 25, 1e-4),
+    "moderntcn": (ModernTCNNet, {"d_hidden": 256}, 15, 1e-4),
+    "patchtst": (PatchTSTNet, {"d_hidden": 32}, 10, 2e-4),
+    "itransformer": (ITransformerNet, {"d_hidden": 256}, 25, 2e-4),
+}
+
+
+class LinearNet(nn.Module):
+    """Additional single-projection control."""
+
+    def __init__(self, context, horizon, channels, revin=True):
         super().__init__()
-        self.revin, self.kernel, self.linear = revin, kernel, linear
-        if kernel % 2 != 1:
-            raise ValueError("Moving average kernel must be odd")
-        if revin:
-            self.affine_weight = nn.Parameter(torch.ones(channels))
-            self.affine_bias = nn.Parameter(torch.zeros(channels))
+        self.instance_norm = RevIN(channels) if revin else None
         self.linear_season = nn.Linear(context, horizon)
-        if not linear:
-            self.linear_trend = nn.Linear(context, horizon)
 
     def forward(self, x):
-        if self.revin:
-            mean = x.mean(-1, keepdim=True).detach()
-            std = torch.sqrt(x.var(-1, keepdim=True, unbiased=False) + 1e-5).detach()
-            x = (x - mean) / std
-            x = x * self.affine_weight[None, :, None] + self.affine_bias[None, :, None]
-        if self.linear:
-            out = self.linear_season(x)
-        else:
-            padded = nn.functional.pad(x, ((self.kernel-1)//2, (self.kernel-1)//2), mode="replicate")
-            trend = nn.functional.avg_pool1d(padded, self.kernel, stride=1)
-            out = self.linear_season(x - trend) + self.linear_trend(trend)
-        if self.revin:
-            out = (out - self.affine_bias[None, :, None]) / (self.affine_weight[None, :, None] + 1e-10)
-            out = out * std + mean
+        if self.instance_norm is not None:
+            x = self.instance_norm(x.transpose(1, 2), "norm").transpose(1, 2)
+        out = self.linear_season(x)
+        if self.instance_norm is not None:
+            out = self.instance_norm(out.transpose(1, 2), "denorm").transpose(1, 2)
         return out
 
 
@@ -54,12 +48,37 @@ def seed_everything(seed):
     torch.backends.cudnn.benchmark = False
 
 
-class DLinear(Model):
-    def __init__(self, context, horizon, channels, seed=0, device="cpu", epochs=50,
-                 batch_size=64, lr=1e-4, revin=True, kernel=25, train_stride=1,
-                 train_limit=None, linear=False):
+class NeuralModel(Model):
+    def __init__(self, architecture, context, horizon, channels, seed=0, device="cpu", epochs=None,
+                 batch_size=64, lr=None, revin=True, kernel=25, train_stride=1,
+                 train_limit=None, model_params=None):
         seed_everything(seed)
-        self.net = DLinearNet(context, horizon, channels, revin, kernel, linear).to(device)
+        params = dict(model_params or {})
+        if architecture == "linear":
+            if params:
+                raise ValueError("The Linear control has no model_params")
+            net = LinearNet(context, horizon, channels, revin)
+            default_epochs, default_lr = 50, 1e-4
+        else:
+            if architecture not in NEURAL_MODELS:
+                raise ValueError(f"Unknown neural architecture: {architecture}")
+            if not revin:
+                raise ValueError("These neural baselines require RevIN (revin=True)")
+            network, defaults, default_epochs, default_lr = NEURAL_MODELS[architecture]
+            params = {**defaults, **params}
+            if {"d_input", "d_output", "n_input"} & params.keys():
+                raise ValueError("context, horizon and channels are supplied by the experiment")
+            if architecture == "dlinear":
+                params.setdefault("kernel_size", kernel)
+                if params["kernel_size"] < 1 or params["kernel_size"] % 2 != 1:
+                    raise ValueError("Moving average kernel must be positive and odd")
+            net = network(d_input=context, d_output=horizon, n_input=channels, **params)
+        epochs = default_epochs if epochs is None else epochs
+        lr = default_lr if lr is None else lr
+        if epochs < 1 or batch_size < 1 or lr <= 0:
+            raise ValueError("Positive epochs, batch_size and lr are required")
+        self.net = net.to(device)
+        self.architecture = architecture
         self.context, self.horizon, self.device = context, horizon, device
         self.epochs, self.batch_size, self.lr = epochs, batch_size, lr
         self.train_stride, self.train_limit = train_stride, train_limit
@@ -67,7 +86,11 @@ class DLinear(Model):
         self.metadata = {"point_forecast": "MSE-trained output", "revin": revin,
                          "epochs": epochs, "lr": lr, "batch_size": batch_size,
                          "train_stride": train_stride, "train_limit": train_limit,
-                         "linear_only": linear, "device": device}
+                         "linear_only": architecture == "linear", "device": device,
+                         "architecture": architecture, "model_params": params,
+                         "network_class": f"{type(net).__module__}.{type(net).__name__}",
+                         "parameter_count": sum(p.numel() for p in net.parameters()),
+                         "implementation": "time-series-hybrid"}
 
     def fit(self, data, val_origins, protocol):
         train_origins = make_origins(self.context, data.train_end, self.context, self.horizon,
@@ -118,8 +141,18 @@ class DLinear(Model):
 
     def predict(self, x, horizon):
         if horizon != self.horizon:
-            raise ValueError("DLinear horizon differs from training horizon")
+            raise ValueError("Neural forecast horizon differs from training horizon")
         self.net.eval()
         with torch.inference_mode():
             point = self.net(torch.as_tensor(x, dtype=torch.float32, device=self.device)).cpu().numpy()
         return Forecast(point)
+
+
+class DLinear(NeuralModel):
+    """DLinear training interface backed by the local DLinearNet."""
+
+    def __init__(self, context, horizon, channels, seed=0, device="cpu", epochs=50,
+                 batch_size=64, lr=1e-4, revin=True, kernel=25, train_stride=1,
+                 train_limit=None, linear=False, model_params=None):
+        super().__init__("linear" if linear else "dlinear", context, horizon, channels, seed, device,
+                         epochs, batch_size, lr, revin, kernel, train_stride, train_limit, model_params)

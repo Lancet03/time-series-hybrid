@@ -1,0 +1,28 @@
+extends: hn_models.yaml
+name: Local neural baselines laptop pilot
+purpose: pilot
+horizons: [48]
+device: cpu
+evaluation:
+  batch_size: 16
+  val_limit: 16
+  test_limit: 16
+
+# Keep all 7 ETTm1 channels and the original network widths/depths.
+# Only training/evaluation volume is reduced; these are not paper metrics.
+models:
+- id: dlinear
+  type: dlinear
+  params: {epochs: 2, batch_size: 16, train_limit: 512}
+- id: tsmixer
+  type: tsmixer
+  params: {epochs: 2, batch_size: 16, train_limit: 512}
+- id: moderntcn
+  type: moderntcn
+  params: {epochs: 2, batch_size: 16, train_limit: 512}
+- id: patchtst
+  type: patchtst
+  params: {epochs: 2, batch_size: 16, train_limit: 512}
+- id: itransformer
+  type: itransformer
+  params: {epochs: 2, batch_size: 16, train_limit: 512}

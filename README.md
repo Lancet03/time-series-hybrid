@@ -10,10 +10,37 @@
 В раннем HN-профиле было лишнее усечение окон; оно исправлено, общий режим гибридов не затронут.
 
 Контур для сравнения статистических моделей, DLinear, замороженных FM и коррекции остатков.
-Реализованы LastValue, SeasonalNaive, AR, ARIMA, ETS, Linear/DLinear,
+Реализованы LastValue, SeasonalNaive, AR, ARIMA, ETS, Linear,
+локальные реализации DLinear, TSMixer, ModernTCN, PatchTST, iTransformer,
 Chronos-Bolt, TimesFM 2.5, Moirai 1.1 и гибрид статистическая модель + FM.
 Есть общий rolling-origin evaluator, выбор настроек по validation,
 сохранение прогнозов в Parquet, сравнение с эталонами и HTML-отчёты.
+
+## Нейронные модели на ноутбуке
+
+Пять моделей реализованы в [models/networks.py](src/tshybrid/models/networks.py)
+и [models/moderntcn.py](src/tshybrid/models/moderntcn.py), общие слои —
+[models/layers.py](src/tshybrid/models/layers.py). Архитектуры соответствуют
+Base-вариантам HN-MVTS; импортов его реализаций в рабочем коде нет.
+Происхождение архитектур и адаптированного кода указано в [THIRD_PARTY.md](THIRD_PARTY.md).
+
+Из каталога `time-series-hybrid`, PowerShell:
+
+```powershell
+# Установка без фундаментальных моделей и загрузки их весов.
+uv venv .venv --python 3.12
+uv pip install --python .venv/Scripts/python.exe -e ".[dev]" --constraint requirements-core.lock.txt
+.\.venv\Scripts\python.exe -m tshybrid prepare-data --source ../HN-MVTS/data
+
+# Все пять локальных сетей: проверка, затем небольшой CPU-пилот.
+.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_smoke.yaml
+.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_laptop.yaml
+```
+
+Пилот сохраняет все 7 каналов ETTm1 и исходные размеры сетей, но использует
+512 train-окон, 2 эпохи и по 16 validation/test origins, H=48. Его метрики
+не являются воспроизведением статьи. Полный конфиг без сокращения окон —
+`configs/hn_models.yaml` (ETTm1, H=48/96, seed=0); он существенно дороже.
 
 **Начать с [результатов первых экспериментов](reports/README.md).**
 Подробности: [протокол](docs/PROTOCOL.md), [воспроизведение статей](docs/REPRODUCTION.md).

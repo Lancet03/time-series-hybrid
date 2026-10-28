@@ -8,6 +8,49 @@ Python 3.12 и CPU. Ниже собраны установка, подготов
 Описание реализации: [PROJECT_DESCRIPTION.md](PROJECT_DESCRIPTION.md).
 Сопоставление с задачей руководителя: [SUPERVISOR_TASK_REVIEW.md](SUPERVISOR_TASK_REVIEW.md).
 
+## Дополнение от 28 октября 2026: пять локальных нейронных сетей
+
+В `src/tshybrid/models/` реализованы DLinear, TSMixer, ModernTCN, PatchTST и
+iTransformer. `networks.py` содержит четыре сети, `moderntcn.py` — ModernTCN,
+`layers.py` — общие слои, `neural.py` — обучение. Рабочий код не импортирует
+реализации HN-MVTS. Соседний репозиторий используется как возможный источник
+данных и необязательный численный эталон в тестах.
+
+В текущем ноутбучном workspace создано `.venv` с базовыми зависимостями и тестами.
+Extras Chronos/TimesFM/Moirai и их checkpoints отдельно не устанавливались.
+Историческое описание готовых FM-окружений ниже относится к прежнему workspace.
+
+Из каталога проекта:
+
+```powershell
+.\.venv\Scripts\python.exe -m tshybrid prepare-data --source ../HN-MVTS/data
+.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_smoke.yaml
+.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_laptop.yaml
+```
+
+`hn_models_smoke.yaml`: все пять сетей, ETTm1/7 каналов/L=336/H=48, одна эпоха,
+8 train-окон, по 2 validation/test origins. `hn_models_laptop.yaml`: те же сети
+без изменения ширины/глубины, 2 эпохи, 512 train-окон, по 16 origins, batch=16,
+4 CPU-потока. Это проверочные пилоты, а не воспроизведение таблиц статьи.
+
+Полный запуск на ETTm1 без ограничения окон, H=48/96, seed=0:
+
+```powershell
+.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models.yaml
+```
+
+Для запуска одной сети добавьте, например, `--models patchtst`. Размеры сети
+задаются через `params.model_params` с сохранёнными именами параметров:
+`d_hidden`, `n_blocks`, `d_hidden_temporal`, `d_hidden_channel`, `d_patch`, `stride`.
+`d_input`, `d_output`, `n_input` передаёт runner из context/horizon/числа каналов.
+Настройки TSMixer в этих конфигах соответствуют ETTm1; другие датасеты требуют
+отдельной фиксации гиперпараметров по авторским YAML.
+
+В артефактах сохраняются `best.pt`, история обучения, прогнозы, HTML-отчёт,
+снимок/хэш кода, `implementation: time-series-hybrid`, класс и число параметров сети.
+Ключи весов совместимы с предыдущими перенесёнными Base-сетями. Самые ранние
+`best.pt` независимого DLinear имеют другие ключи. Старые отчёты не пересчитывались.
+
 ## 1. Что запускается
 
 Проект умеет сравнивать статистические модели, Linear/DLinear, три замороженные

@@ -1,0 +1,122 @@
+[
+  {
+    "dataset": "ETTm1",
+    "model": "dlinear",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 2,
+      "batch_size": 16,
+      "train_limit": 512
+    },
+    "validation": {
+      "mse": 0.5220665618512763,
+      "mae": 0.5032731587126753,
+      "mse_raw": 7.479788364789315,
+      "mae_raw": 1.7091794652576755,
+      "mase": 1.2354117876864787,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.002529699995648116,
+    "fit_seconds": 3.6546781999932136,
+    "validation_seconds": 0.01350329999695532
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "tsmixer",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 2,
+      "batch_size": 16,
+      "train_limit": 512
+    },
+    "validation": {
+      "mse": 0.48190445990111946,
+      "mae": 0.4783841282880877,
+      "mse_raw": 5.777521009205001,
+      "mae_raw": 1.5391584395807205,
+      "mase": 1.16686185869067,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.014731300005223602,
+    "fit_seconds": 0.921924800000852,
+    "validation_seconds": 0.005286199972033501
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "moderntcn",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 2,
+      "batch_size": 16,
+      "train_limit": 512
+    },
+    "validation": {
+      "mse": 0.40304355727118757,
+      "mae": 0.4248987231754827,
+      "mse_raw": 4.531477605626435,
+      "mae_raw": 1.3527521271024556,
+      "mase": 1.0364192143547715,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.017990399996051565,
+    "fit_seconds": 12.026484100002563,
+    "validation_seconds": 0.029217900009825826
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "patchtst",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 2,
+      "batch_size": 16,
+      "train_limit": 512
+    },
+    "validation": {
+      "mse": 0.3777419628667276,
+      "mae": 0.4006093092712901,
+      "mse_raw": 4.24967413572085,
+      "mae_raw": 1.2758656944502489,
+      "mase": 0.9795037110024377,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.01559669998823665,
+    "fit_seconds": 7.0266271000145935,
+    "validation_seconds": 0.014113299985183403
+  },
+  {
+    "dataset": "ETTm1",
+    "model": "itransformer",
+    "horizon": 48,
+    "seed": 0,
+    "candidate": 0,
+    "params": {
+      "epochs": 2,
+      "batch_size": 16,
+      "train_limit": 512
+    },
+    "validation": {
+      "mse": 0.3187094569447572,
+      "mae": 0.37349301265913665,
+      "mse_raw": 3.8865786305426,
+      "mae_raw": 1.2136762793671871,
+      "mase": 0.9148241563793574,
+      "n_values": 5376,
+      "n_mase_values": 5376
+    },
+    "model_init_seconds": 0.01619099997333251,
+    "fit_seconds": 1.7280679999967106,
+    "validation_seconds": 0.007109600002877414
+  }
+]

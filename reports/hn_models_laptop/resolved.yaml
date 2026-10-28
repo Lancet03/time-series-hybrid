@@ -1,0 +1,56 @@
+name: HN-MVTS Base networks laptop pilot
+purpose: pilot
+protocol: common
+context: 336
+horizons:
+- 48
+device: cpu
+threads: 4
+output: ../outputs
+evaluation:
+  batch_size: 16
+  val_stride: 1
+  test_stride: 1
+  val_limit: 16
+  test_limit: 16
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split:
+  - 0.6
+  - 0.2
+  - 0.2
+  take_n: 57600
+models:
+- id: dlinear
+  type: dlinear
+  params:
+    epochs: 2
+    batch_size: 16
+    train_limit: 512
+- id: tsmixer
+  type: tsmixer
+  params:
+    epochs: 2
+    batch_size: 16
+    train_limit: 512
+- id: moderntcn
+  type: moderntcn
+  params:
+    epochs: 2
+    batch_size: 16
+    train_limit: 512
+- id: patchtst
+  type: patchtst
+  params:
+    epochs: 2
+    batch_size: 16
+    train_limit: 512
+- id: itransformer
+  type: itransformer
+  params:
+    epochs: 2
+    batch_size: 16
+    train_limit: 512

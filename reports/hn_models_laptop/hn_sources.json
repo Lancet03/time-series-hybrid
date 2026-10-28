@@ -1,0 +1,45 @@
+{
+  "repository": "https://github.com/av-savchenko/HN-MVTS",
+  "commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+  "changes": [
+    "Only model imports: from layers import -> from ..layers import. No architecture or forward changes."
+  ],
+  "files": [
+    {
+      "path": "layers.py",
+      "upstream_path": "src/layers.py",
+      "upstream_sha256": "6a5c9c4f9f2112ead33d69fa4c82569da1eb7d03db5de0ec58d5318e461ec8e8",
+      "bundled_sha256": "6a5c9c4f9f2112ead33d69fa4c82569da1eb7d03db5de0ec58d5318e461ec8e8"
+    },
+    {
+      "path": "models/dlinear.py",
+      "upstream_path": "src/models/dlinear.py",
+      "upstream_sha256": "ed0b6757672790098f18c71560b126b575025d00bb76ef4db5388ce5da8f5c89",
+      "bundled_sha256": "c10cee98be46e695b4ccc3ea4405acda3b6dd16756a059454492a7d698a1cf6e"
+    },
+    {
+      "path": "models/tsmixer.py",
+      "upstream_path": "src/models/tsmixer.py",
+      "upstream_sha256": "db6e683cc89d7147337f250a305d5f1585397c4e036304719922f17320dbf371",
+      "bundled_sha256": "5ba00ccc464167ad1b4547d8e40e0d8cf6dc44d1a325488876b1983b2eca7115"
+    },
+    {
+      "path": "models/moderntcn.py",
+      "upstream_path": "src/models/moderntcn.py",
+      "upstream_sha256": "171265e29edafeb0d7332aaa633c42ae4c104f1602bc761c0d86f932bfd94d8d",
+      "bundled_sha256": "30004d24b4e954b89c400aeaa1d9fc0048af2d9fbe2de053dafb3cf886a10a0b"
+    },
+    {
+      "path": "models/patchtst.py",
+      "upstream_path": "src/models/patchtst.py",
+      "upstream_sha256": "1f56782ba00ecadeb1b930c456f8bc077128e43c01624e5d416ad6cfb4e300d5",
+      "bundled_sha256": "0e81c163ab651662df7ce91888967bb40ac6e7eba09edef0cd184d0fd7747bd6"
+    },
+    {
+      "path": "models/itransformer.py",
+      "upstream_path": "src/models/itransformer.py",
+      "upstream_sha256": "f84c5f4aab5498bce28a17a76afeabc390e17254a2ad5f23f08629995c549e6a",
+      "bundled_sha256": "c7e3786cc82ddc248fa0f7cd4c35e96549a0508a465acf38ceed9d58c08cf382"
+    }
+  ]
+}

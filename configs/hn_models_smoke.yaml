@@ -1,0 +1,22 @@
+extends: hn_models_laptop.yaml
+name: Local neural baselines smoke
+evaluation:
+  batch_size: 4
+  val_limit: 2
+  test_limit: 2
+models:
+- id: dlinear
+  type: dlinear
+  params: {epochs: 1, batch_size: 4, train_limit: 8}
+- id: tsmixer
+  type: tsmixer
+  params: {epochs: 1, batch_size: 4, train_limit: 8}
+- id: moderntcn
+  type: moderntcn
+  params: {epochs: 1, batch_size: 4, train_limit: 8}
+- id: patchtst
+  type: patchtst
+  params: {epochs: 1, batch_size: 4, train_limit: 8}
+- id: itransformer
+  type: itransformer
+  params: {epochs: 1, batch_size: 4, train_limit: 8}

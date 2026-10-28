@@ -1,0 +1,35 @@
+{
+  "dataset": "ETTm1",
+  "model": "tsmixer",
+  "horizon": 48,
+  "seed": 0,
+  "selected_params": {
+    "epochs": 2,
+    "batch_size": 16,
+    "train_limit": 512
+  },
+  "metadata": {
+    "point_forecast": "MSE-trained output",
+    "revin": true,
+    "epochs": 2,
+    "lr": 0.0001,
+    "batch_size": 16,
+    "train_stride": 1,
+    "train_limit": 512,
+    "linear_only": false,
+    "device": "cpu",
+    "architecture": "tsmixer",
+    "model_params": {
+      "d_hidden_temporal": 128,
+      "d_hidden_channel": 24
+    },
+    "network_class": "tshybrid.vendor.hn_mvts.models.tsmixer.TSMixer",
+    "parameter_count": 191256,
+    "implementation": "HN-MVTS Base (bundled source)",
+    "upstream_commit": "e86c58a315576cef021d99e04b9b5fef55ddd6d6",
+    "source_manifest_sha256": "4a8fad521500b89fff671abfe8bb9e8576bf35d7907aa452011cae7940eb6eb6",
+    "best_epoch": 1,
+    "training_windows": 512
+  },
+  "validation_mse": 0.48190445990111946
+}

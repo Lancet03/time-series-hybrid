@@ -22,7 +22,7 @@ import yaml
 
 from .data import load_dataset, make_origins
 from .evaluation import evaluate
-from .models.neural import DLinear, seed_everything
+from .models.neural import DLinear, NEURAL_MODELS, NeuralModel, seed_everything
 from .models.statistical import AR, ARIMA, ETS, LastValue, SeasonalNaive
 from .reporting import build_report
 
@@ -83,9 +83,11 @@ def validate_config(config):
             raise ValueError("Dataset/model IDs must contain only letters, numbers, underscores and hyphens")
     known = {}
     for spec in config["models"]:
-        if config.get("protocol") == "hn_mvts_code" and spec["type"] == "dlinear":
+        if config.get("protocol") == "hn_mvts_code" and spec["type"] in NEURAL_MODELS:
             params = spec.get("params", {})
-            if (params.get("kernel", 25) != 25 or not params.get("revin", True)
+            if (params.get("kernel", 25) != 25
+                    or params.get("model_params", {}).get("kernel_size", 25) != 25
+                    or not params.get("revin", True)
                     or config.get("evaluation", {}).get("batch_size", 16) != params.get("batch_size", 64)):
                 raise ValueError("HN code protocol requires kernel=25, RevIN and matching train/evaluation batch sizes")
         if spec["type"] == "hybrid":
@@ -158,6 +160,8 @@ def make_model(spec, params, data, context, horizon, seed, device, cache_dir, ca
         return ETS(**params)
     if kind in {"dlinear", "linear"}:
         return DLinear(context, horizon, len(data.channels), seed, device, linear=kind == "linear", **params)
+    if kind in NEURAL_MODELS:
+        return NeuralModel(kind, context, horizon, len(data.channels), seed, device, **params)
     if kind in {"chronos", "timesfm", "moirai"}:
         from .models.foundation import Foundation
         key = json.dumps([kind, params, device], sort_keys=True)
