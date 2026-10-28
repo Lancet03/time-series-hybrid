@@ -10,7 +10,6 @@ threads: 4
 output: ../outputs
 cache: ../.cache/huggingface
 model_lock: model-lock.json
-references: ../references/hn_mvts_author.csv
 evaluation:
   batch_size: 16
   val_stride: 1
@@ -42,10 +41,6 @@ datasets:
   - 0.1
   - 0.2
 models:
-- id: last_value
-  type: last_value
-- id: seasonal_naive
-  type: seasonal_naive
 - id: ar
   type: ar
   params:
@@ -67,10 +62,6 @@ models:
     - 2
     - 0
     - 0
-- id: ets
-  type: ets
-  params:
-    trend: add
 - id: dlinear
   type: dlinear
   seeds:
@@ -84,6 +75,63 @@ models:
     batch_size: 64
     lr: 0.0001
     revin: true
+- id: tsmixer
+  type: tsmixer
+  seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  params:
+    epochs: 25
+    batch_size: 64
+    lr: 0.0001
+    model_params:
+      d_hidden_temporal: 128
+      d_hidden_channel: 24
+- id: moderntcn
+  type: moderntcn
+  seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  params:
+    epochs: 15
+    batch_size: 64
+    lr: 0.0001
+    model_params:
+      d_hidden: 256
+- id: patchtst
+  type: patchtst
+  seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  params:
+    epochs: 10
+    batch_size: 64
+    lr: 0.0002
+    model_params:
+      d_hidden: 32
+- id: itransformer
+  type: itransformer
+  seeds:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  params:
+    epochs: 25
+    batch_size: 64
+    lr: 0.0002
+    model_params:
+      d_hidden: 256
 - id: chronos
   type: chronos
   params:
@@ -108,5 +156,26 @@ models:
   type: hybrid
   base: arima
   residual: chronos
+  params:
+    warmup: 128
+- id: arima_timesfm
+  type: hybrid
+  base: arima
+  residual: timesfm
+  params:
+    warmup: 128
+- id: arima_moirai_base
+  type: arima
+  params:
+    fit_prefix: 128
+    maxiter: 100
+    initialization: approximate_diffuse
+  candidates:
+  - order: [2, 1, 0]
+  - order: [2, 0, 0]
+- id: arima_moirai
+  type: hybrid
+  base: arima_moirai_base
+  residual: moirai
   params:
     warmup: 128

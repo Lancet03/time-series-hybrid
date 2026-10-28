@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -10,9 +9,11 @@ from tshybrid.data import Windows, load_dataset, make_origins
 from tshybrid.evaluation import Scores, evaluate
 from tshybrid.models.base import Forecast
 from tshybrid.models.hybrid import Hybrid
-from tshybrid.models.neural import DLinear, DLinearNet
-from tshybrid.models.statistical import AR, ARIMA, LastValue
-from tshybrid.reporting import combine_runs, compare_references
+from tshybrid.models.dlinear import DLinearModel as DLinear
+from tshybrid.models.ar import AR
+from tshybrid.models.arima import ARIMA
+from helpers import Persistence
+from tshybrid.reporting import combine_runs
 from tshybrid.runner import read_config, run
 
 
@@ -94,7 +95,7 @@ def test_residuals_are_causal_and_base_matches(factory):
 
 def test_hybrid_does_not_receive_future_targets(tmp_path):
     data = dataset(tmp_path)
-    model = Hybrid(AR(order=3, fit_prefix=12), LastValue(), warmup=12)
+    model = Hybrid(AR(order=3, fit_prefix=12), Persistence(), warmup=12)
     origin, context, horizon = data.val_end, 24, 4
     x = data.values[origin-context:origin].T[None]
     before = model.predict(x, horizon).point.copy()
@@ -107,7 +108,7 @@ def test_predictions_roundtrip_and_mae_matches_saved_values(tmp_path):
     data = dataset(tmp_path)
     origins = make_origins(data.val_end, len(data.values), 12, 4, limit=3)
     output = tmp_path / "predictions.parquet"
-    metrics, leads, _ = evaluate(LastValue(), data, origins, 12, 4, batch_size=2, output=output)
+    metrics, leads, _ = evaluate(Persistence(), data, origins, 12, 4, batch_size=2, output=output)
     saved = pd.read_parquet(output)
     assert len(saved) == 3 * 2 * 4
     assert metrics["mae_raw"] == pytest.approx(np.abs(saved.prediction-saved.y).mean())
@@ -128,42 +129,6 @@ def test_dlinear_training_never_reads_test(tmp_path):
         torch.testing.assert_close(value, expected[key], rtol=0, atol=0)
 
 
-def test_dlinear_matches_hn_source_when_available():
-    import importlib.util
-    import sys
-    root = Path(__file__).resolve().parents[2] / "HN-MVTS" / "src"
-    if not root.exists():
-        pytest.skip("External HN-MVTS checkout unavailable")
-    sys.path.insert(0, str(root))
-    spec = importlib.util.spec_from_file_location("hn_reference_dlinear", root / "models" / "dlinear.py")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    torch.manual_seed(11)
-    reference = module.DLinear(48, 12, 3)
-    torch.manual_seed(11)
-    actual = DLinearNet(48, 12, 3)
-    x = torch.randn(2, 3, 48)
-    torch.testing.assert_close(actual(x), reference(x), rtol=1e-6, atol=1e-6)
-    sys.path.remove(str(root))
-
-
-def test_reference_comparison_rejects_pilot(tmp_path):
-    reference = pd.DataFrame([dict(dataset="x", model="dlinear", horizon=4, protocol="hn_mvts_code",
-                                   expected_mse=.3, tolerance=.01)])
-    reference.to_csv(tmp_path / "reference.csv", index=False)
-    metrics = pd.DataFrame([dict(dataset="x", model="dlinear", horizon=4, protocol="hn_mvts_code",
-                                 mse=.3, pilot=True)])
-    assert compare_references(metrics, tmp_path / "reference.csv").iloc[0].status == "protocol_mismatch"
-    reference["steps"], reference["val_end"] = 200, 160
-    reference.to_csv(tmp_path / "reference.csv", index=False)
-    metrics["steps"], metrics["val_end"] = 200, 160
-    metrics["pilot"], metrics["n_origins"] = False, 25
-    result = compare_references(metrics, tmp_path / "reference.csv").iloc[0]
-    assert result.status == "protocol_mismatch" and "n_origins" in result.mismatches
-    metrics["n_origins"] = 37
-    assert compare_references(metrics, tmp_path / "reference.csv").iloc[0].status == "within_tolerance"
-
-
 def test_config_inheritance_and_cycles(tmp_path):
     (tmp_path / "base.yaml").write_text("context: 12\nevaluation:\n  batch_size: 4\n  test_limit: 2\n")
     (tmp_path / "child.yaml").write_text("extends: base.yaml\nevaluation:\n  batch_size: 8\n")
@@ -179,7 +144,7 @@ def test_failed_models_are_visible_and_successful_results_survive(tmp_path):
     config = dict(name="integration", purpose="pilot", context=12, horizons=[4], threads=1,
                   output="out", evaluation=dict(val_limit=2, test_limit=2),
                   datasets=[dict(name="test", path="series.npy", seasonality=2, split=[.6,.2,.2])],
-                  models=[dict(id="last", type="last_value"), dict(id="broken", type="unknown")])
+                  models=[dict(id="ar", type="ar", params=dict(order=1)), dict(id="broken", type="ar", params=dict(order=100))])
     path = tmp_path / "config.yaml"
     path.write_text(yaml.safe_dump(config))
     output, success = run(path)
@@ -196,11 +161,11 @@ def test_combining_runs_checks_data_and_preserves_source_ids(tmp_path):
     config = dict(name="combine", purpose="pilot", context=12, horizons=[4], threads=1,
                   output="out", evaluation=dict(val_limit=2, test_limit=2),
                   datasets=[dict(name="test", path="series.npy", seasonality=2, split=[.6,.2,.2])],
-                  models=[dict(id="last", type="last_value")])
+                  models=[dict(id="ar", type="ar", params=dict(order=1))])
     path = tmp_path / "config.yaml"
     path.write_text(yaml.safe_dump(config))
     first, _ = run(path)
-    config["models"] = [dict(id="seasonal", type="seasonal_naive")]
+    config["models"] = [dict(id="ar_second", type="ar", params=dict(order=2))]
     path.write_text(yaml.safe_dump(config))
     second, _ = run(path)
     combine_runs([first, second], tmp_path / "combined")
@@ -212,3 +177,28 @@ def test_combining_runs_checks_data_and_preserves_source_ids(tmp_path):
     third, _ = run(path)
     with pytest.raises(ValueError, match="Different data/protocol/origins"):
         combine_runs([first, third], tmp_path / "rejected")
+
+
+def test_numerically_failed_validation_candidate_is_recorded_and_next_one_runs(tmp_path, monkeypatch):
+    import json
+    import yaml
+    import tshybrid.runner as runner
+    np.save(tmp_path / "series.npy", np.arange(240, dtype=float).reshape(120, 2))
+    original_factory = runner.make_model
+    def factory(spec, params, *args):
+        if params.get("fail"):
+            raise np.linalg.LinAlgError("Numerical failure in parameter estimation")
+        return original_factory(spec, params, *args)
+    monkeypatch.setattr(runner, "make_model", factory)
+    config = dict(name="numeric", purpose="pilot", context=12, horizons=[4], threads=1,
+                  output="out", evaluation=dict(val_limit=2, test_limit=2),
+                  datasets=[dict(name="test", path="series.npy", seasonality=2, split=[.6,.2,.2])],
+                  models=[dict(id="ar", type="ar", params=dict(order=1), candidates=[dict(fail=True), {}])])
+    path = tmp_path / "config.yaml"
+    path.write_text(yaml.safe_dump(config))
+    directory, success = runner.run(path)
+    assert success
+    selection = json.loads((directory / "selection.json").read_text())
+    assert selection[0]["status"] == "numerical_failure"
+    assert "validation" in selection[1]
+    assert len(pd.read_csv(directory / "metrics.csv")) == 1

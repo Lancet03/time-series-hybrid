@@ -5,45 +5,7 @@ from pathlib import Path
 import pandas as pd
 
 
-def compare_references(metrics, references):
-    rows = []
-    reference = pd.read_csv(references)
-    for _, target in reference.iterrows():
-        matches = metrics[(metrics.dataset == target.dataset) & (metrics.model == target.model)
-                          & (metrics.horizon == target.horizon)] if not metrics.empty else metrics
-        if matches.empty:
-            rows.append({**target.to_dict(), "status": "not_run"})
-            continue
-        for _, actual in matches.iterrows():
-            mismatch = []
-            fields = ["protocol", "context", "seed", "channels", "steps", "dataset_sha256",
-                      "train_end", "val_end", "epochs", "lr", "batch_size", "revin"]
-            for key in fields:
-                if key in target and pd.notna(target[key]):
-                    value = actual.get(key)
-                    equal = str(value) == str(target[key])
-                    try:
-                        equal = abs(float(value)-float(target[key])) < 1e-10
-                    except (TypeError, ValueError):
-                        pass
-                    if not equal:
-                        mismatch.append(key)
-            if target.get("protocol") == "hn_mvts_code" and all(
-                    key in target and pd.notna(target[key]) for key in ("steps", "val_end", "horizon")):
-                expected_origins = int(target.steps)-int(target.val_end)-int(target.horizon)+1
-                if actual.get("n_origins") != expected_origins:
-                    mismatch.append("n_origins")
-            comparable = not mismatch and not bool(actual.get("pilot", True))
-            difference = float(actual.mse) - float(target.expected_mse)
-            status = "protocol_mismatch" if not comparable else (
-                "within_tolerance" if abs(difference) <= target.tolerance else "outside_tolerance")
-            rows.append({**target.to_dict(), "run_id": actual.get("run_id"), "actual_mse": actual.mse,
-                         "difference": difference, "status": status,
-                         "mismatches": ", ".join(mismatch + (["pilot"] if actual.get("pilot", True) else []))})
-    return pd.DataFrame(rows)
-
-
-def build_report(run_dir, references=None):
+def build_report(run_dir):
     run_dir = Path(run_dir)
     path = run_dir / "metrics.csv"
     metrics = pd.read_csv(path) if path.exists() and path.stat().st_size > 1 else pd.DataFrame()
@@ -70,12 +32,6 @@ def build_report(run_dir, references=None):
             mae_mean=("mae", "mean"), mase_mean=("mase", "mean")).reset_index()
         aggregate.to_csv(run_dir / "aggregate.csv", index=False)
         sections += ["<h2>Seed aggregation (sample std)</h2>", aggregate.to_html(index=False)]
-        if references:
-            comparison = compare_references(metrics, references)
-            comparison.to_csv(run_dir / "comparison.csv", index=False)
-            fields = [c for c in ["dataset", "model", "horizon", "target_kind", "expected_mse", "actual_mse",
-                                 "difference", "status", "mismatches"] if c in comparison]
-            sections += ["<h2>Reference comparison</h2>", comparison[fields].to_html(index=False)]
         try:
             import matplotlib
             matplotlib.use("Agg")

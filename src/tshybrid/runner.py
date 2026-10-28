@@ -22,8 +22,8 @@ import yaml
 
 from .data import load_dataset, make_origins
 from .evaluation import evaluate
-from .models.neural import DLinear, NEURAL_MODELS, NeuralModel, seed_everything
-from .models.statistical import AR, ARIMA, ETS, LastValue, SeasonalNaive
+from .models.neural import seed_everything
+from .models.registry import FOUNDATION_MODELS, MODEL_TYPES, NEURAL_ADAPTERS, NEURAL_MODELS, STATISTICAL_MODELS
 from .reporting import build_report
 
 
@@ -83,6 +83,8 @@ def validate_config(config):
             raise ValueError("Dataset/model IDs must contain only letters, numbers, underscores and hyphens")
     known = {}
     for spec in config["models"]:
+        if spec["type"] not in MODEL_TYPES:
+            raise ValueError(f"Unknown model type {spec['type']}; supported: {sorted(MODEL_TYPES)}")
         if config.get("protocol") == "hn_mvts_code" and spec["type"] in NEURAL_MODELS:
             params = spec.get("params", {})
             if (params.get("kernel", 25) != 25
@@ -96,8 +98,8 @@ def validate_config(config):
                     raise ValueError(f"Hybrid {key} must refer to a preceding model")
             if known[spec["residual"]]["type"] not in {"chronos", "timesfm", "moirai"}:
                 raise ValueError("Hybrid residual must be a frozen foundation model")
-            if known[spec["base"]]["type"] not in {"last_value", "seasonal_naive", "ar", "arima"}:
-                raise ValueError("Hybrid base must implement causal residuals: last_value, seasonal_naive, AR or ARIMA")
+            if known[spec["base"]]["type"] not in {"ar", "arima"}:
+                raise ValueError("Hybrid base must implement causal residuals: AR or ARIMA")
             if any(len(known[spec[key]].get("seeds", [0])) != 1 for key in ("base", "residual")):
                 raise ValueError("Hybrid dependencies must specify one unambiguous seed")
         if not spec.get("seeds", [0]):
@@ -148,25 +150,14 @@ def environment():
 
 def make_model(spec, params, data, context, horizon, seed, device, cache_dir, cache, selected):
     kind = spec["type"]
-    if kind == "last_value":
-        return LastValue()
-    if kind == "seasonal_naive":
-        return SeasonalNaive(params.get("period", data.seasonality))
-    if kind == "ar":
-        return AR(**params)
-    if kind == "arima":
-        return ARIMA(**params)
-    if kind == "ets":
-        return ETS(**params)
-    if kind in {"dlinear", "linear"}:
-        return DLinear(context, horizon, len(data.channels), seed, device, linear=kind == "linear", **params)
-    if kind in NEURAL_MODELS:
-        return NeuralModel(kind, context, horizon, len(data.channels), seed, device, **params)
-    if kind in {"chronos", "timesfm", "moirai"}:
-        from .models.foundation import Foundation
+    if kind in STATISTICAL_MODELS:
+        return STATISTICAL_MODELS[kind](**params)
+    if kind in NEURAL_ADAPTERS:
+        return NEURAL_ADAPTERS[kind](context, horizon, len(data.channels), seed=seed, device=device, **params)
+    if kind in FOUNDATION_MODELS:
         key = json.dumps([kind, params, device], sort_keys=True)
         if key not in cache:
-            cache[key] = Foundation(kind, device=device, cache_dir=cache_dir, **params)
+            cache[key] = FOUNDATION_MODELS[kind](device=device, cache_dir=cache_dir, **params)
         return cache[key]
     if kind == "hybrid":
         from .models.hybrid import Hybrid
@@ -332,7 +323,6 @@ def run(config_path, model_ids=None, dataset_names=None):
         write_json(run_dir / "failures.json", failures)
         write_json(run_dir / "selection.json", selections)
         write_json(run_dir / "manifest.json", manifest)
-        references = root / config["references"] if config.get("references") else None
-        build_report(run_dir, references)
+        build_report(run_dir)
         print(f"Report: {run_dir / 'report.html'}", flush=True)
     return run_dir, not failures

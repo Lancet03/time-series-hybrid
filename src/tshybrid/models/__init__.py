@@ -1,1 +1,1 @@
-"""Model implementations are imported on demand by the runner."""
+"""Individual model modules and a shared registry for the experiment runner."""

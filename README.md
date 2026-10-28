@@ -1,201 +1,107 @@
 # Hybrid Time Series Forecasting
 
-## Полная документация
+Самостоятельный проект для сравнения AR/ARIMA, пяти нейронных сетей,
+трёх замороженных фундаментальных моделей и гибридов статистическая модель + FM.
+Соседний репозиторий для установки, запуска и тестирования не требуется.
 
-- [RUN_GUIDE.md](RUN_GUIDE.md) — установка, данные, веса, все режимы запуска, отчёты и устранение ошибок.
-- [PROJECT_DESCRIPTION.md](PROJECT_DESCRIPTION.md) — устройство проекта, разбор фрагментов кода и карта реализации.
-- [SUPERVISOR_TASK_REVIEW.md](SUPERVISOR_TASK_REVIEW.md) — выполнение задачи руководителя, реальные результаты и недостающие проверки.
+## Модели
 
-Актуальный исправленный контроль DLinear: [reproduction_corrected](reports/reproduction_corrected/report.html).
-В раннем HN-профиле было лишнее усечение окон; оно исправлено, общий режим гибридов не затронут.
+Каждая модель находится в собственном файле `src/tshybrid/models/`:
 
-Контур для сравнения статистических моделей, DLinear, замороженных FM и коррекции остатков.
-Реализованы LastValue, SeasonalNaive, AR, ARIMA, ETS, Linear,
-локальные реализации DLinear, TSMixer, ModernTCN, PatchTST, iTransformer,
-Chronos-Bolt, TimesFM 2.5, Moirai 1.1 и гибрид статистическая модель + FM.
-Есть общий rolling-origin evaluator, выбор настроек по validation,
-сохранение прогнозов в Parquet, сравнение с эталонами и HTML-отчёты.
+| Модель | Файл | Реализация |
+|---|---|---|
+| AR | [ar.py](src/tshybrid/models/ar.py) | NumPy-регрессия |
+| ARIMA | [arima.py](src/tshybrid/models/arima.py) | statsmodels |
+| DLinear | [dlinear.py](src/tshybrid/models/dlinear.py) | Перенесённая нейронная сеть |
+| TSMixer | [tsmixer.py](src/tshybrid/models/tsmixer.py) | Перенесённая нейронная сеть |
+| ModernTCN | [moderntcn.py](src/tshybrid/models/moderntcn.py) | Перенесённая нейронная сеть |
+| PatchTST | [patchtst.py](src/tshybrid/models/patchtst.py) | Перенесённая нейронная сеть |
+| iTransformer | [itransformer.py](src/tshybrid/models/itransformer.py) | Перенесённая нейронная сеть |
+| TimesFM | [timesfm.py](src/tshybrid/models/timesfm.py) | Официальный timesfm API |
+| Chronos-Bolt | [chronos.py](src/tshybrid/models/chronos.py) | Официальный chronos-forecasting API |
+| Moirai | [moirai.py](src/tshybrid/models/moirai.py) | Официальный Uni2TS API |
 
-## Нейронные модели на ноутбуке
+Пять нейронных сетей и необходимые слои включены в исходники проекта. Их источник
+и лицензия указаны в [THIRD_PARTY.md](THIRD_PARTY.md); внешних импортов этих сетей нет.
+Runner обучает Base-варианты. Классы Hyper сохранены в файлах сетей, но через
+runner пока не выбираются. Гибриды реализованы в [hybrid.py](src/tshybrid/models/hybrid.py).
 
-Пять моделей реализованы в [models/networks.py](src/tshybrid/models/networks.py)
-и [models/moderntcn.py](src/tshybrid/models/moderntcn.py), общие слои —
-[models/layers.py](src/tshybrid/models/layers.py). Архитектуры соответствуют
-Base-вариантам HN-MVTS; импортов его реализаций в рабочем коде нет.
-Происхождение архитектур и адаптированного кода указано в [THIRD_PARTY.md](THIRD_PARTY.md).
+## Установка и данные
 
-Из каталога `time-series-hybrid`, PowerShell:
-
-```powershell
-# Установка без фундаментальных моделей и загрузки их весов.
-uv venv .venv --python 3.12
-uv pip install --python .venv/Scripts/python.exe -e ".[dev]" --constraint requirements-core.lock.txt
-.\.venv\Scripts\python.exe -m tshybrid prepare-data --source ../HN-MVTS/data
-
-# Все пять локальных сетей: проверка, затем небольшой CPU-пилот.
-.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_smoke.yaml
-.\.venv\Scripts\python.exe -m tshybrid run configs/hn_models_laptop.yaml
-```
-
-Пилот сохраняет все 7 каналов ETTm1 и исходные размеры сетей, но использует
-512 train-окон, 2 эпохи и по 16 validation/test origins, H=48. Его метрики
-не являются воспроизведением статьи. Полный конфиг без сокращения окон —
-`configs/hn_models.yaml` (ETTm1, H=48/96, seed=0); он существенно дороже.
-
-**Начать с [результатов первых экспериментов](reports/README.md).**
-Подробности: [протокол](docs/PROTOCOL.md), [воспроизведение статей](docs/REPRODUCTION.md).
-
-Пункты 5 и 6 выделены в отдельное исследование: [гибриды и первый отчёт](reports/hybrid_study/REPORT.md).
-Конфиги `hybrid_core.yaml` и `hybrid_moirai.yaml` сравнивают ARIMA / FM / ARIMA+FM
-для всех трёх FM: ETTm1 (7 каналов), Weather (21), ECL (16 фиксированных каналов),
-16 validation/test origins, H=48/96. Это расширенный pilot, не полная оценка всех окон.
-
-```powershell
-# Одной командой: оба окружения, затем отчёт (каталог отчёта должен быть новым).
-.\.venv\Scripts\python.exe scripts/run_hybrid_study.py --output reports/<new-study>
-
-# Запускать последовательно, чтобы не конкурировать за CPU.
-.\.venv\Scripts\python.exe -m tshybrid run configs/hybrid_core.yaml
-.\.venv-moirai\Scripts\python.exe -m tshybrid run configs/hybrid_moirai.yaml
-.\.venv\Scripts\python.exe -m tshybrid hybrid-report outputs/<core-id> outputs/<moirai-id> --output reports/<new-study> --reproduction reports/reproduction
-```
-
-`hybrid-report` проверяет одинаковые targets и сохранённые составляющие гибрида,
-затем создаёт `REPORT.md`, `report.html`, таблицы выигрыша, разбор по каналам/origins/lead,
-графики и копии provenance. В прогнозах сохраняются отдельно база и коррекция.
-У Moirai собственный baseline `arima_moirai_base` в том же окружении, чтобы не
-приписать гибриду различия численных библиотек.
-В этих двух конфигах явно задана `initialization: approximate_diffuse`: на расширенном
-Weather стационарная инициализация исходного ARIMA приводила к LU decomposition error.
-Численно неудачный validation-кандидат записывается в `selection.json`; выбор продолжается
-среди остальных. Ошибка выбранной модели на test по-прежнему делает прогон неполным.
-
-## Запуск в текущем workspace
-
-Окружения, данные и три checkpoints уже подготовлены. PowerShell:
-
-```powershell
-cd C:\workspace\learning\research\time-series-hybrid
-
-# Проверка данных, без загрузки моделей.
-.\.venv\Scripts\python.exe -m tshybrid inspect configs/pilot.yaml
-
-# Короткий полный путь: статистика, DLinear, FM, гибрид.
-.\.venv\Scripts\python.exe -m tshybrid run configs/smoke.yaml
-
-# ETTm1/Weather/ECL, H=48/96, по 2 канала и 8 origins.
-.\.venv\Scripts\python.exe -m tshybrid run configs/pilot.yaml
-
-# Остальные FM на тех же данных и окнах.
-.\.venv\Scripts\python.exe -m tshybrid run configs/foundation.yaml --models timesfm
-.\.venv-moirai\Scripts\python.exe -m tshybrid run configs/foundation.yaml --models moirai
-
-# Полный ETTm1, H=48, 50 эпох, seed=0, авторский протокол.
-.\.venv\Scripts\python.exe -m tshybrid run configs/reproduce_ettm1_h48.yaml
-```
-
-Каждая команда печатает путь `outputs/<run-id>/report.html`.
-Открыть: `Invoke-Item .\outputs\<run-id>\report.html`.
-Пилот проверяет весь путь, но не считается воспроизведением статьи.
-Локально проверен CPU; поддержка CUDA предусмотрена, но здесь не проверена.
-
-## Установка с нуля
-
-Python 3.11+; проверен 3.12. Moirai использует отдельное окружение из-за ограничений
-Uni2TS на PyTorch/NumPy. Команды с `uv`:
+Проверен Python 3.12, Windows и CPU. Из каталога проекта, PowerShell:
 
 ```powershell
 uv venv .venv --python 3.12
 uv pip install --python .venv/Scripts/python.exe -e ".[chronos,timesfm,plots,network,dev]"
+
 uv venv .venv-moirai --python 3.12
 uv pip install --python .venv-moirai/Scripts/python.exe -e ".[moirai]"
-
-.\.venv\Scripts\python.exe -m tshybrid prepare-data --source ../HN-MVTS/data/datasets
-.\.venv\Scripts\python.exe -m tshybrid import-hn-reference --repo ../HN-MVTS
-.\.venv\Scripts\python.exe -m tshybrid prefetch configs/foundation.yaml
 ```
 
-Без uv: `python -m venv .venv`, затем `.venv\Scripts\python -m pip install -e ".[chronos,timesfm,plots,network,dev]"`.
-Точные версии текущих Windows/CPU-окружений: `requirements-core.lock.txt` и
-`requirements-moirai.lock.txt`. Для восстановления установить соответствующий
-lock-файл, затем `uv pip install --no-deps -e .` в этом же окружении.
-GPU-версию PyTorch подбирать под CUDA отдельно.
+У Moirai отдельное окружение из-за ограничений версий зависимостей Uni2TS.
+Для CUDA нужна соответствующая сборка PyTorch. Восстановление проверенных версий
+описано в [RUN_GUIDE.md](RUN_GUIDE.md).
 
-Для сети с корпоративным сертификатом доступна опция `--system-certs`:
-`python -m tshybrid --system-certs prefetch configs/foundation.yaml`.
-Она использует системное хранилище через truststore, сохраняя проверку TLS.
+Поместите `ETTm1.npy`, `weather.npy`, `electricity.npy` в `data/`.
+Формат NPY: числовая матрица `[time, channels]`. Можно скопировать их из любой
+своей папки командой:
 
-Без соседнего HN-MVTS доступна загрузка официального ETT:
-`python -m tshybrid prepare-data --datasets ETTm1 ETTm2 --destination data`.
-Она создаёт CSV; в копии конфига нужно заменить `../data/ETTm1.npy` на
-`../data/ETTm1.csv`. SHA авторского NPY-эталона при этом не совпадёт.
-Weather/Electricity автоматически из сторонних зеркал не скачиваются.
+```powershell
+.\.venv\Scripts\python.exe -m tshybrid prepare-data --source C:\datasets\mvts
+.\.venv\Scripts\python.exe -m tshybrid inspect configs/benchmark.yaml
+.\.venv\Scripts\python.exe -m tshybrid prefetch configs/benchmark.yaml
+```
 
-## Конфиги
+`prefetch` скачивает три checkpoints с ревизиями из `configs/model-lock.json`.
+Поддерживается также wide CSV; официальные ETT можно скачать через `prepare-data`
+без `--source`, затем указать CSV-пути в своей копии конфига.
+
+## Полный запуск
+
+`benchmark.yaml`: ETTm1/Weather/ECL, все каналы и окна, контекст 336,
+горизонты 48/96, пять seed для каждой нейронной сети. Эпохи:
+DLinear 50, TSMixer 25, ModernTCN 15, PatchTST 10, iTransformer 25.
+Это общий протокол сравнения, без автоматического сравнения с авторскими логами.
+
+Запускайте окружения последовательно:
+
+```powershell
+.\.venv\Scripts\python.exe -m tshybrid run configs/benchmark.yaml --models ar arima dlinear tsmixer moderntcn patchtst itransformer chronos timesfm arima_chronos arima_timesfm
+.\.venv-moirai\Scripts\python.exe -m tshybrid run configs/benchmark.yaml --models moirai arima_moirai
+```
+
+Для `arima_moirai` автоматически запускается отдельная ARIMA-база в том же
+окружении. `--datasets ETTm1` ограничивает датасет; `--models dlinear` — модель.
+Полная серия дорогая, особенно ARIMA с подгонкой на каждом окне и канале.
+
+Другие полные конфиги:
 
 | Конфиг | Назначение |
 |---|---|
-| `smoke.yaml` | ETTm1, H=48, 2 канала, 2 origins, DLinear 2 эпохи |
-| `pilot.yaml` | Три датасета, H=48/96, 2 канала, 8 origins, DLinear 5 эпох |
-| `foundation.yaml` | Три FM на том же пилоте, запуск по окружениям |
-| `benchmark.yaml` | Все каналы/origins, H=48/96, DLinear 50 эпох и 5 seed |
-| `hn_mvts_code.yaml` | Авторский протокол, H=48/96/192/336, три датасета |
-| `reproduce_ettm1_h48.yaml` | Один полный воспроизводящий прогон |
+| `hn_models.yaml` | Пять нейронных сетей, ETTm1, H=48/96, seed=0 |
+| `hn_mvts_code.yaml` | Фиксированный профиль обучения DLinear, три датасета, четыре горизонта |
+| `reproduce_ettm1_h48.yaml` | Тот же профиль DLinear только на ETTm1, H=48 |
 
-Пути разрешаются относительно каталога конфига, в том числе при `extends`.
-Словари объединяются, списки заменяются. `device: auto` выбирает CUDA при наличии;
-также допустимы `cpu` и `cuda:0`. CPU-потоки: `threads`.
-`--models`/`--datasets` ограничивают запуск; зависимости гибрида подключаются автоматически.
+Названия двух последних профилей отражают происхождение протокола; они читают
+только данные и код этого проекта. Проверочные конфиги smoke/laptop/pilot удалены.
 
-`configs/model-lock.json` закрепляет SHA checkpoints. Обновление — отдельное действие:
-`python -m tshybrid lock-models configs/foundation.yaml`.
+## Результаты и проверки
 
-Полный benchmark существенно дороже пилота, особенно ARIMA на каждом origin:
+Каждый запуск печатает `outputs/<run-id>/report.html`. Там сохраняются метрики,
+прогнозы Parquet, составляющие гибрида, лучшая validation-модель, история обучения,
+выбранные параметры, ошибки, снимок кода и сведения об окружении.
 
 ```powershell
-.\.venv\Scripts\python.exe -m tshybrid run configs/benchmark.yaml --models last_value seasonal_naive ar arima ets dlinear chronos timesfm arima_chronos
-.\.venv-moirai\Scripts\python.exe -m tshybrid run configs/benchmark.yaml --models moirai
-```
+.\.venv\Scripts\python.exe -m tshybrid combine outputs/<core-id> outputs/<moirai-id> --output outputs/combined
+Invoke-Item .\outputs\combined\report.html
 
-Для абляции контекста создать копии с разными `context` и проверить `fit_prefix < context`.
-
-## Артефакты
-
-В `outputs/<run-id>/` сохраняются:
-
-- `report.html`, `metrics.csv`, `aggregate.csv` — test-метрики и sample std по seed;
-- `manifest.json`, `resolved.yaml` — конфиг, SHA данных/кода, splits/каналы,
-  пакеты, устройство, checkpoints и выбранные параметры;
-- `selection.json` — все кандидаты и их validation-оценки;
-- `failures.json` — явные ошибки; неполный прогон возвращает exit code 1;
-- `<dataset>-<model>-H<h>-s<seed>/predictions.parquet` — origin/channel/lead,
-  truth, forecast, ошибки и квантили;
-- `by_lead.csv`, `origins.npz` — метрики по шагам и точные индексы;
-- `best.pt`, `training-*.csv` — лучшая validation-модель DLinear и история обучения;
-- `mse-*.png` — standalone графики при установленном extra `plots`.
-
-Перестроить HTML: `python -m tshybrid report outputs/<run-id>`.
-Объединить отдельные окружения:
-
-```powershell
-.\.venv\Scripts\python.exe -m tshybrid combine outputs/<pilot-id> outputs/<timesfm-id> outputs/<moirai-id> --output outputs/combined
-```
-
-Проверяются SHA данных, каналы, splits, сезонность и точные origins.
-Несовместимые протоколы и дубли model/seed отклоняются.
-
-## Проверки и дальнейшая работа
-
-```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\ruff.exe check src tests
 ```
 
-Проверяются границы окон, train-only scaling, причинность остатков AR/ARIMA,
-отсутствие влияния test на обучение DLinear, последний батч, интервальные метрики,
-Parquet и защита от сравнения pilot с опубликованным эталоном.
-При наличии HN-MVTS проверяется forward DLinear против исходной реализации.
+Обычные отчёты и объединение совместимых запусков сохранены. Команды импорта
+авторских логов, сравнения с эталонами и расширенного анализа гибридов удалены.
+Исторические артефакты в `reports/` и `outputs/` остаются записями прежних запусков.
 
-Полные матрицы seed/горизонтов, оригинальные FM-бенчмарки, проверка pretraining overlap,
-M4/Monash, PatchTST/N-BEATS, критерий выбора коррекции и оценка устойчивости
-остаются следующими исследовательскими этапами.
+Подробности: [RUN_GUIDE.md](RUN_GUIDE.md), [PROJECT_DESCRIPTION.md](PROJECT_DESCRIPTION.md),
+[протокол](docs/PROTOCOL.md).

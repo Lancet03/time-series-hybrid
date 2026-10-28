@@ -8,7 +8,7 @@ from urllib.request import urlretrieve
 import pandas as pd
 
 from .data import file_hash, load_dataset, make_origins
-from .reporting import build_report, combine_runs, compare_references
+from .reporting import build_report, combine_runs
 from .runner import read_config, run, validate_config, write_json
 
 
@@ -32,7 +32,7 @@ def prepare_data(source, destination, names):
             if not target.exists():
                 shutil.copyfile(original, target)
             manifest[name] = {"source": str(original), "file": target.name, "sha256": file_hash(target),
-                              "provenance": "HN-MVTS author-provided NPY; preprocessing inherited, not independently verified"}
+                              "provenance": "User-provided NPY; preprocessing supplied by the dataset provider"}
         else:
             if name not in {"ETTm1", "ETTm2"}:
                 raise ValueError("Automatic official-source download supports ETTm1/ETTm2. Use --source for Weather/ECL")
@@ -52,43 +52,11 @@ def prepare_data(source, destination, names):
     write_json(manifest_path, manifest)
 
 
-def import_reference(repo, output):
-    repo, output = Path(repo).resolve(), Path(output).resolve()
-    rows = []
-    mapping = {"Weather": "weather.npy", "ECL": "electricity.npy"}
-    for path in sorted((repo / "results").glob("2025*DLinear*.parquet")):
-        frame = pd.read_parquet(path).reset_index()
-        metrics = {c for c in frame if c.startswith(("mse_", "mae_"))}
-        keys = [c for c in frame if c not in metrics | {"epoch_id"}]
-        best = frame.loc[frame.groupby(keys, dropna=False).mse_val.idxmin()]
-        for _, row in best[best.variant == "Base"].iterrows():
-            dataset_path = repo / "data" / "datasets" / mapping.get(row.dataset, f"{row.dataset}.npy")
-            if not dataset_path.exists():
-                dataset_path = repo / "data" / dataset_path.name
-            import numpy as np
-            channels = np.load(dataset_path, mmap_mode="r").shape[1]
-            fractions = [int(v)/10 for v in str(row.split)]
-            size = int(row["size"])
-            rows.append({"dataset": row.dataset, "model": "dlinear", "horizon": int(row.horizon),
-                         "context": int(row.history), "protocol": "hn_mvts_code", "seed": int(row.seed),
-                         "channels": channels, "steps": size, "train_end": int(size*fractions[0]),
-                         "val_end": size-int(size*fractions[2]), "dataset_sha256": file_hash(dataset_path),
-                         "epochs": int(row.epochs), "lr": row.lr, "batch_size": int(row.batch_size),
-                         "revin": True, "expected_mse": row.mse_test, "tolerance": 0.005,
-                         "target_kind": "author_log_single_seed", "source": path.name,
-                         "source_sha256": file_hash(path), "validation_epoch": int(row.epoch_id)})
-    if not rows:
-        raise ValueError("No author DLinear logs found")
-    output.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_csv(output, index=False)
-    print(f"Imported {len(rows)} author reference rows: {output}")
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="tsh")
     parser.add_argument("--system-certs", action="store_true", help="Use native OS certificate store (network extra)")
     sub = parser.add_subparsers(dest="command", required=True)
-    prepare = sub.add_parser("prepare-data", help="Copy author NPY datasets or download official ETT CSV")
+    prepare = sub.add_parser("prepare-data", help="Copy local NPY datasets or download official ETT CSV")
     prepare.add_argument("--source", type=Path)
     prepare.add_argument("--destination", type=Path, default=Path("data"))
     prepare.add_argument("--datasets", nargs="+", choices=DATA_FILES, default=["ETTm1", "Weather", "ECL"])
@@ -100,20 +68,9 @@ def main(argv=None):
     execute.add_argument("--datasets", nargs="+")
     report = sub.add_parser("report")
     report.add_argument("run_dir", type=Path)
-    report.add_argument("--references", type=Path)
-    hybrid_report = sub.add_parser("hybrid-report", help="Build a paired ARIMA / raw FM / residual FM study")
-    hybrid_report.add_argument("run_dirs", nargs="+", type=Path)
-    hybrid_report.add_argument("--output", type=Path, required=True)
-    hybrid_report.add_argument("--reproduction", type=Path)
-    compare = sub.add_parser("compare")
-    compare.add_argument("run_dir", type=Path)
-    compare.add_argument("--references", type=Path, required=True)
     combine = sub.add_parser("combine", help="Combine compatible runs from separate model environments")
     combine.add_argument("run_dirs", nargs="+", type=Path)
     combine.add_argument("--output", type=Path, required=True)
-    reference = sub.add_parser("import-hn-reference")
-    reference.add_argument("--repo", type=Path, default=Path("../HN-MVTS"))
-    reference.add_argument("--output", type=Path, default=Path("references/hn_mvts_author.csv"))
     lock = sub.add_parser("lock-models")
     lock.add_argument("config", type=Path)
     lock.add_argument("--output", type=Path, default=Path("configs/model-lock.json"))
@@ -126,8 +83,6 @@ def main(argv=None):
         truststore.inject_into_ssl()
     if args.command == "prepare-data":
         prepare_data(args.source, args.destination, args.datasets)
-    elif args.command == "import-hn-reference":
-        import_reference(args.repo, args.output)
     elif args.command == "inspect":
         config = read_config(args.config)
         validate_config(config)
@@ -146,14 +101,7 @@ def main(argv=None):
         if not success:
             sys.exit(1)
     elif args.command == "report":
-        print(build_report(args.run_dir, args.references))
-    elif args.command == "hybrid-report":
-        from .study import study_report
-        print(study_report(args.run_dirs, args.output, args.reproduction))
-    elif args.command == "compare":
-        result = compare_references(pd.read_csv(args.run_dir / "metrics.csv"), args.references)
-        result.to_csv(args.run_dir / f"comparison-{args.references.stem}.csv", index=False)
-        print(result.to_string(index=False))
+        print(build_report(args.run_dir))
     elif args.command == "combine":
         print(combine_runs(args.run_dirs, args.output))
     elif args.command == "lock-models":

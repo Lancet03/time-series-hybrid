@@ -10,7 +10,6 @@ horizons:
 device: auto
 threads: 4
 output: ../outputs
-references: ../references/hn_mvts_author.csv
 evaluation:
   batch_size: 64
   val_stride: 1
