@@ -99,9 +99,19 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$batch/Start-All.ps1"
 | `hn_models.yaml` | Пять нейронных сетей, ETTm1, H=48/96, seed=0 |
 | `hn_mvts_code.yaml` | Фиксированный профиль обучения DLinear, три датасета, четыре горизонта |
 | `reproduce_ettm1_h48.yaml` | Тот же профиль DLinear только на ETTm1, H=48 |
+| `arima_chronos.yaml` | ARIMA, Chronos и ARIMA + Chronos на остатках; полный ETTm1, H=48/96 |
 
-Названия двух последних профилей отражают происхождение протокола; они читают
+Названия `hn_mvts_code.yaml` и `reproduce_ettm1_h48.yaml` отражают происхождение протокола; они читают
 только данные и код этого проекта. Проверочные конфиги smoke/laptop/pilot удалены.
+
+Отдельный эксперимент с коррекцией ошибок ARIMA:
+
+```powershell
+.\.venv\Scripts\python.exe -u -m tshybrid run configs/arima_chronos.yaml
+```
+
+Схема, причинность остатков и условия сравнения:
+[ARIMA_CHRONOS.md](docs/ARIMA_CHRONOS.md).
 
 ## Результаты и проверки
 
