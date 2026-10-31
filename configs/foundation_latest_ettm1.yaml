@@ -1,0 +1,37 @@
+name: TimesFM 3 and Chronos-2 zero-shot on ETTm1
+purpose: benchmark
+protocol: common
+context: 336
+horizons: [48, 96]
+# Fail explicitly if CUDA is unavailable rather than silently run a full test on CPU.
+device: cuda:0
+threads: 4
+output: ../outputs
+cache: ../.cache/huggingface
+model_lock: model-lock-foundation-latest.json
+evaluation:
+  batch_size: 16
+  val_stride: 1
+  test_stride: 1
+datasets:
+- name: ETTm1
+  path: ../data/ETTm1.npy
+  seasonality: 96
+  frequency: 15min
+  split: [0.6, 0.2, 0.2]
+  take_n: 57600
+models:
+- id: chronos2
+  type: chronos2
+  seeds: [0]
+  params:
+    checkpoint: amazon/chronos-2
+    revision: main
+    batch_size: 8
+- id: timesfm3
+  type: timesfm3
+  seeds: [0]
+  params:
+    checkpoint: google/timesfm-3.0-pytorch
+    revision: main
+    batch_size: 8

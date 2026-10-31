@@ -9,6 +9,7 @@ import pandas as pd
 
 from .data import file_hash, load_dataset, make_origins
 from .reporting import build_report, combine_runs
+from .models.registry import FOUNDATION_MODELS
 from .runner import read_config, run, validate_config, write_json
 
 
@@ -109,7 +110,7 @@ def main(argv=None):
         config = read_config(args.config)
         entries = {}
         for spec in config["models"]:
-            if spec["type"] in {"chronos", "timesfm", "moirai"}:
+            if spec["type"] in FOUNDATION_MODELS:
                 params = spec["params"]
                 info = HfApi().model_info(params["checkpoint"], revision=params.get("revision", "main"))
                 entries[params["checkpoint"]] = {"revision": info.sha, "requested_revision": params.get("revision", "main")}
@@ -122,7 +123,7 @@ def main(argv=None):
         root = args.config.resolve().parent
         lock = json.loads((root / config["model_lock"]).read_text(encoding="utf-8"))
         for spec in config["models"]:
-            if spec["type"] in {"chronos", "timesfm", "moirai"} and (
+            if spec["type"] in FOUNDATION_MODELS and (
                     not args.models or spec["id"] in args.models):
                 checkpoint = spec["params"]["checkpoint"]
                 path, commit = resolve_revision(checkpoint, lock[checkpoint]["revision"],

@@ -1,0 +1,7 @@
+extends: foundation_latest_ettm1.yaml
+name: TimesFM 3 and Chronos-2 ETTm1 smoke test
+purpose: pilot
+evaluation:
+  batch_size: 1
+  val_limit: 2
+  test_limit: 2

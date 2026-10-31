@@ -2,12 +2,14 @@
 from .ar import AR
 from .arima import ARIMA
 from .chronos import Chronos
+from .chronos2 import Chronos2
 from .dlinear import DLinear, DLinearModel
 from .itransformer import InverseTransformer, ITransformerModel
 from .moderntcn import ModernTCN, ModernTCNModel
 from .moirai import Moirai
 from .patchtst import PatchTST, PatchTSTModel
 from .timesfm import TimesFM
+from .timesfm3 import TimesFM3
 from .tsmixer import TSMixer, TSMixerModel
 
 
@@ -28,5 +30,6 @@ NEURAL_ADAPTERS = {
 }
 
 STATISTICAL_MODELS = {"ar": AR, "arima": ARIMA}
-FOUNDATION_MODELS = {"chronos": Chronos, "timesfm": TimesFM, "moirai": Moirai}
+FOUNDATION_MODELS = {"chronos": Chronos, "chronos2": Chronos2,
+                     "timesfm": TimesFM, "timesfm3": TimesFM3, "moirai": Moirai}
 MODEL_TYPES = {*STATISTICAL_MODELS, *NEURAL_MODELS, *FOUNDATION_MODELS, "hybrid"}

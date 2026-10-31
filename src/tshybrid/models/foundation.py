@@ -1,4 +1,7 @@
 """Frozen, channel-independent official FM APIs; immutable HF revisions are recorded."""
+import json
+from pathlib import Path
+
 import numpy as np
 import torch
 
@@ -12,10 +15,20 @@ def resolve_revision(checkpoint, revision, cache_dir):
                    allow_patterns=["*.json", "*.safetensors", "*.bin", "*.model"])
     try:
         path = snapshot_download(**options, local_files_only=True)
+        snapshot = Path(path)
+        indexes = list(snapshot.glob("*.index.json"))
+        if indexes:
+            weights = [snapshot / name for index in indexes
+                       for name in set(json.loads(index.read_text(encoding="utf-8"))["weight_map"].values())]
+        else:
+            weights = list(snapshot.glob("*.safetensors")) + list(snapshot.glob("*.bin"))
+        # HF can return a snapshot directory containing only config.json after an
+        # interrupted download. Resume the weights instead of treating it as complete.
+        if not (snapshot / "config.json").is_file() or not weights or not all(p.is_file() for p in weights):
+            raise LocalEntryNotFoundError("Cached checkpoint is incomplete")
     except LocalEntryNotFoundError:
         path = snapshot_download(**options)
     # snapshot_download resolves even a moving branch to a concrete commit directory.
-    from pathlib import Path
     return path, Path(path).name
 
 

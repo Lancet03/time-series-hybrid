@@ -1,0 +1,10 @@
+{
+  "amazon/chronos-2": {
+    "revision": "29ec3766d36d6f73f0696f85560a422f50e8498c",
+    "requested_revision": "main"
+  },
+  "google/timesfm-3.0-pytorch": {
+    "revision": "43046b85ec22d584a13f8098c2ed39c889e129c2",
+    "requested_revision": "main"
+  }
+}

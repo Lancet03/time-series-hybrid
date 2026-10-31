@@ -10,7 +10,7 @@ from tshybrid.runner import read_config, validate_config
 def test_requested_models_have_individual_implementation_modules():
     classes = {**STATISTICAL_MODELS, **NEURAL_ADAPTERS, **FOUNDATION_MODELS}
     assert set(classes) == {"ar", "arima", "dlinear", "tsmixer", "moderntcn", "patchtst",
-                            "itransformer", "chronos", "timesfm", "moirai"}
+                            "itransformer", "chronos", "chronos2", "timesfm", "timesfm3", "moirai"}
     for name, cls in classes.items():
         assert cls.__module__ == f"tshybrid.models.{name}"
     assert MODEL_TYPES == set(classes) | {"hybrid"}
@@ -21,7 +21,7 @@ def test_all_shipped_configs_use_supported_models():
     for path in directory.glob("*.yaml"):
         validate_config(read_config(path))
     full = read_config(directory / "benchmark.yaml")
-    assert {m["type"] for m in full["models"]} == MODEL_TYPES
+    assert {m["type"] for m in full["models"]} == MODEL_TYPES - {"chronos2", "timesfm3"}
 
 
 @pytest.mark.parametrize("kind", ["last_value", "seasonal_naive", "ets", "linear"])

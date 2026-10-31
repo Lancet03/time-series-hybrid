@@ -1,0 +1,34 @@
+extends: foundation_latest_ettm1.yaml
+name: ARIMA, Chronos-2, TimesFM 3 and ARIMA + Chronos-2 on ETTm1
+models:
+- id: arima
+  type: arima
+  seeds: [0]
+  params:
+    fit_prefix: 128
+    maxiter: 100
+    workers: 4
+  candidates:
+  - order: [2, 1, 0]
+  - order: [2, 0, 0]
+- id: chronos2
+  type: chronos2
+  seeds: [0]
+  params:
+    checkpoint: amazon/chronos-2
+    revision: main
+    batch_size: 8
+- id: timesfm3
+  type: timesfm3
+  seeds: [0]
+  params:
+    checkpoint: google/timesfm-3.0-pytorch
+    revision: main
+    batch_size: 8
+- id: arima_chronos2
+  type: hybrid
+  seeds: [0]
+  base: arima
+  residual: chronos2
+  params:
+    warmup: 128

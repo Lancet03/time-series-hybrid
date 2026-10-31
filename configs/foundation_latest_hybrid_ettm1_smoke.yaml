@@ -1,0 +1,7 @@
+extends: foundation_latest_hybrid_ettm1.yaml
+name: ARIMA + Chronos-2 and latest foundation models ETTm1 smoke test
+purpose: pilot
+evaluation:
+  batch_size: 1
+  val_limit: 2
+  test_limit: 2

@@ -97,7 +97,7 @@ def validate_config(config):
             for key in ("base", "residual"):
                 if spec[key] not in known:
                     raise ValueError(f"Hybrid {key} must refer to a preceding model")
-            if known[spec["residual"]]["type"] not in {"chronos", "timesfm", "moirai"}:
+            if known[spec["residual"]]["type"] not in FOUNDATION_MODELS:
                 raise ValueError("Hybrid residual must be a frozen foundation model")
             if known[spec["base"]]["type"] not in {"ar", "arima"}:
                 raise ValueError("Hybrid base must implement causal residuals: AR or ARIMA")
@@ -191,7 +191,7 @@ def run(config_path, model_ids=None, dataset_names=None):
     if config.get("model_lock"):
         lock = json.loads((root / config["model_lock"]).read_text(encoding="utf-8"))
         for spec in config["models"]:
-            if spec["type"] in {"chronos", "timesfm", "moirai"}:
+            if spec["type"] in FOUNDATION_MODELS:
                 entry = lock[spec["params"]["checkpoint"]]
                 spec["params"]["revision"] = entry["revision"]
     context, protocol = config["context"], config.get("protocol", "common")
@@ -264,7 +264,7 @@ def run(config_path, model_ids=None, dataset_names=None):
                                             model.progress_callback = progress.update
                                             model.history_path = task_dir / f"training-{candidate}.csv"
                                         initialization_seconds = perf_counter() - initialization_start
-                                        if spec["type"] in {"chronos", "timesfm", "moirai"}:
+                                        if spec["type"] in FOUNDATION_MODELS:
                                             # Initialization and cache hits must not change the sampling RNG.
                                             seed_everything(seed)
                                         fit_start = perf_counter()
