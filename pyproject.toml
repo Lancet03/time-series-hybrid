@@ -11,7 +11,7 @@ dependencies = ["numpy>=1.26,<3", "pandas>=2.1,<4", "pyarrow>=15", "PyYAML>=6", 
 
 [project.optional-dependencies]
 chronos = ["chronos-forecasting==2.3.2", "transformers>=4.41,<5", "accelerate>=1.1,<2"]
-timesfm = ["timesfm[torch]==2.0.2"]
+timesfm = ["timesfm[torch]==3.0.2"]
 moirai = ["uni2ts==2.0.0", "pyarrow>=15,<20"]
 plots = ["matplotlib>=3.8"]
 network = ["truststore>=0.10"]

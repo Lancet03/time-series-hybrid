@@ -1,0 +1,52 @@
+{
+  "name": "Combined compatible experiments",
+  "status": "completed",
+  "protocol": "common",
+  "sources": [
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\ar\\20261028T205209Z-0818aae4",
+      "run_id": "20261028T205209Z-0818aae4",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\dlinear\\20261028T220316Z-3a31ecbc",
+      "run_id": "20261028T220316Z-3a31ecbc",
+      "source_sha256": "fb4a332169b2407200fadab6d70407d9e87cc0d3cb31ebb783551becba401c1d"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\itransformer\\20261028T220358Z-88c90de2",
+      "run_id": "20261028T220358Z-88c90de2",
+      "source_sha256": "fb4a332169b2407200fadab6d70407d9e87cc0d3cb31ebb783551becba401c1d"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\moderntcn\\20261028T205210Z-79daa5ae",
+      "run_id": "20261028T205210Z-79daa5ae",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\moirai\\20261028T205211Z-b17cf0ba",
+      "run_id": "20261028T205211Z-b17cf0ba",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\patchtst\\20261028T205211Z-80756ee4",
+      "run_id": "20261028T205211Z-80756ee4",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\timesfm\\20261028T205211Z-3b35f9dd",
+      "run_id": "20261028T205211Z-3b35f9dd",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\parallel-ETTm1-20261028-234958\\runs\\tsmixer\\20261028T205210Z-b4239ff9",
+      "run_id": "20261028T205210Z-b4239ff9",
+      "source_sha256": "76f4bee897acf4975fb80e2b626cece8294e2ae654b36f88e9bb258c82ac0616"
+    },
+    {
+      "run_dir": "C:\\workspace\\learning\\research\\time-series-hybrid\\outputs\\20261028T221119Z-ab32cd3e",
+      "run_id": "20261028T221119Z-ab32cd3e",
+      "source_sha256": "fb4a332169b2407200fadab6d70407d9e87cc0d3cb31ebb783551becba401c1d"
+    }
+  ]
+}
