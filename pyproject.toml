@@ -14,6 +14,7 @@ chronos = ["chronos-forecasting==2.3.2", "transformers>=4.41,<5", "huggingface-h
 timesfm = ["timesfm[torch]==3.0.2"]
 moirai = ["uni2ts==2.0.0", "pyarrow>=15,<20"]
 plots = ["matplotlib>=3.8"]
+notebooks = ["jupyterlab>=4,<5", "ipykernel>=6,<8", "nbclient>=0.10,<1", "nbformat>=5.10,<6", "ipywidgets>=8,<9", "matplotlib>=3.8"]
 network = ["truststore>=0.10"]
 dev = ["pytest>=8", "ruff>=0.11"]
 
